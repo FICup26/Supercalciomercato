@@ -1,0 +1,1722 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FiCup Box News Pro — Enhanced</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;600;700;800;900&family=Oswald:wght@400;600;700&family=Bebas+Neue&family=Anton&family=Teko:wght@400;600;700&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:#111827;min-height:100vh;font-family:'Inter',sans-serif;color:#1e293b}
+
+/* ════════ CARD ════════ */
+#cardWrapper{
+  position:relative;width:360px;height:640px;
+  min-width:360px;max-width:360px;min-height:640px;max-height:640px;
+  overflow:hidden;display:flex;flex-direction:column;
+  background:#ffffff;
+}
+/* Layer stack: bgLogo(0) > texBg(1) > vigBg(2) > frameBorder(3) > content(4+) */
+#bgLogoLayer{position:absolute;inset:0;pointer-events:none;z-index:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#bgLogoImg{width:80%;height:80%;object-fit:contain;opacity:0.18;filter:blur(0px);transition:all .3s}
+#texBg{position:absolute;inset:0;pointer-events:none;z-index:1;transition:opacity .3s}
+#vigBg{position:absolute;inset:0;pointer-events:none;z-index:2}
+#cardFrameEl{position:absolute;inset:0;pointer-events:none;z-index:3;border:0px solid transparent;border-radius:0px;transition:all .3s}
+#cardWrapper>*:not(#bgLogoLayer):not(#texBg):not(#vigBg):not(#cardFrameEl):not(#mainTitleEl):not(.free-text-el):not(#transferArrowsArea):not(#multiImagesArea){position:relative;z-index:4}
+#mainTitleEl{z-index:20!important}
+.free-text-el{z-index:18!important}
+
+/* ════════ 20 TEXTURES ════════ */
+.tx-bokeh{background-color:#0d0d2b;background-image:radial-gradient(circle at 15% 25%,rgba(139,92,246,.35) 0,transparent 60px),radial-gradient(circle at 85% 70%,rgba(236,72,153,.3) 0,transparent 55px),radial-gradient(circle at 60% 15%,rgba(59,130,246,.3) 0,transparent 50px),radial-gradient(circle at 30% 80%,rgba(20,184,166,.25) 0,transparent 45px),radial-gradient(circle at 75% 40%,rgba(251,191,36,.2) 0,transparent 40px)}
+.tx-carbon{background-color:#1a1a1a;background-image:repeating-linear-gradient(45deg,transparent,transparent 2px,rgba(255,255,255,.05) 2px,rgba(255,255,255,.05) 4px),repeating-linear-gradient(-45deg,transparent,transparent 2px,rgba(255,255,255,.025) 2px,rgba(255,255,255,.025) 4px),linear-gradient(180deg,rgba(255,255,255,.04) 0%,transparent 50%,rgba(0,0,0,.08) 100%)}
+.tx-blueprint{background-color:#1a3a5c;background-image:linear-gradient(rgba(255,255,255,.18) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.18) 1px,transparent 1px),linear-gradient(rgba(255,255,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.06) 1px,transparent 1px);background-size:80px 80px,80px 80px,16px 16px,16px 16px}
+.tx-marble{background-color:#e8dfd3;background-image:repeating-linear-gradient(108deg,transparent 0,transparent 9%,rgba(180,155,120,.4) 9%,rgba(180,155,120,.4) 10%,transparent 10%),repeating-linear-gradient(72deg,transparent 0,transparent 18%,rgba(160,130,95,.25) 18%,rgba(160,130,95,.25) 19%),linear-gradient(135deg,rgba(255,255,255,.5) 0%,rgba(210,185,155,.3) 100%)}
+.tx-stardust{background-color:#050514;background-image:radial-gradient(1.5px 1.5px at 10% 15%,rgba(255,255,255,.6) 0,transparent 100%),radial-gradient(1px 1px at 30% 45%,rgba(255,255,255,.4) 0,transparent 100%),radial-gradient(1px 1px at 55% 22%,rgba(255,255,255,.5) 0,transparent 100%),radial-gradient(1.5px 1.5px at 70% 68%,rgba(255,255,255,.6) 0,transparent 100%),radial-gradient(1px 1px at 85% 38%,rgba(255,255,255,.4) 0,transparent 100%),radial-gradient(2px 2px at 62% 88%,rgba(200,180,255,.5) 0,transparent 100%),radial-gradient(ellipse at 40% 50%,rgba(70,40,120,.5) 0,transparent 70%)}
+.tx-cemento{background-color:#888a8d}
+.tx-gold{background-color:#7a5c1a;background-image:repeating-linear-gradient(60deg,rgba(255,215,0,.12) 0,rgba(255,215,0,.12) 1px,transparent 1px,transparent 18px),repeating-linear-gradient(-60deg,rgba(255,215,0,.08) 0,rgba(255,215,0,.08) 1px,transparent 1px,transparent 18px),linear-gradient(135deg,rgba(255,235,100,.3) 0%,rgba(200,150,20,.15) 50%,rgba(255,235,100,.3) 100%)}
+.tx-leather{background-color:#4a2d1a}
+.tx-linen{background-color:#f5f0e8;background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.04) 0,rgba(0,0,0,.04) 1px,transparent 1px,transparent 4px),repeating-linear-gradient(90deg,rgba(0,0,0,.03) 0,rgba(0,0,0,.03) 1px,transparent 1px,transparent 6px)}
+.tx-diag{background-color:#f8fafc;background-image:repeating-linear-gradient(45deg,rgba(0,0,0,.07) 0,rgba(0,0,0,.07) 1px,transparent 1px,transparent 12px)}
+.tx-hex{background-color:#f0f4ff;background-image:radial-gradient(circle farthest-side at 0% 50%,rgba(59,130,246,.12) 23.5%,transparent 0) 21px 30px,radial-gradient(circle farthest-side at 100% 50%,rgba(59,130,246,.12) 23.5%,transparent 0) 21px 30px,radial-gradient(circle farthest-side at 0% 50%,rgba(59,130,246,.06) 23.5%,transparent 0),radial-gradient(circle farthest-side at 100% 50%,rgba(59,130,246,.06) 23.5%,transparent 0);background-size:42px 60px}
+.tx-circuit{background-color:#0a1628;background-image:linear-gradient(rgba(59,130,246,.14) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.14) 1px,transparent 1px),radial-gradient(circle,rgba(59,130,246,.2) 2px,transparent 2px);background-size:40px 40px,40px 40px,40px 40px;background-position:0 0,0 0,20px 20px}
+.tx-vintage{background-color:#d4b896}
+.tx-mesh{background-color:#f8fafc;background-image:radial-gradient(circle at center,rgba(0,0,0,.12) 1px,transparent 1px);background-size:10px 10px}
+.tx-holo{background:linear-gradient(135deg,rgba(255,0,128,.15) 0%,rgba(255,100,0,.12) 14%,rgba(255,255,0,.12) 28%,rgba(0,255,128,.12) 42%,rgba(0,200,255,.15) 57%,rgba(100,0,255,.12) 71%,rgba(255,0,200,.12) 85%,rgba(255,0,128,.15) 100%),linear-gradient(to bottom right,rgba(255,255,255,.15),rgba(200,200,255,.1))}
+.tx-damask{background-color:#f9f4ee;background-image:radial-gradient(circle at 50% 0%,rgba(150,100,50,.15) 25%,transparent 25%),radial-gradient(circle at 50% 100%,rgba(150,100,50,.15) 25%,transparent 25%),radial-gradient(circle at 0% 50%,rgba(150,100,50,.15) 25%,transparent 25%),radial-gradient(circle at 100% 50%,rgba(150,100,50,.15) 25%,transparent 25%),radial-gradient(circle at 50% 50%,rgba(150,100,50,.1) 30%,transparent 30%);background-size:30px 30px}
+.tx-topo{background-color:#1a2e1a;background-image:repeating-radial-gradient(circle at 40% 45%,transparent 0,transparent 14px,rgba(74,222,128,.08) 15px,transparent 15px),repeating-radial-gradient(circle at 65% 60%,transparent 0,transparent 20px,rgba(74,222,128,.06) 21px,transparent 21px)}
+.tx-grain{background-color:#1c1c1c}
+.tx-herring{background-color:#f1f5f9;background-image:repeating-linear-gradient(45deg,rgba(0,0,0,.07) 0,rgba(0,0,0,.07) 6px,transparent 6px,transparent 12px),repeating-linear-gradient(-45deg,rgba(0,0,0,.07) 0,rgba(0,0,0,.07) 6px,transparent 6px,transparent 12px)}
+.tx-plaid{background-color:#1a1a2e;background-image:repeating-linear-gradient(0deg,transparent,transparent 14px,rgba(99,102,241,.15) 14px,rgba(99,102,241,.15) 15px),repeating-linear-gradient(90deg,transparent,transparent 14px,rgba(99,102,241,.15) 14px,rgba(99,102,241,.15) 15px)}
+
+/* ════════ CARD SECTIONS ════════ */
+#cardBanner{flex-shrink:0;padding:8px 18px;background:#111827;display:none;align-items:center;justify-content:center}
+#bannerText{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:4px;color:#fff;text-transform:uppercase;outline:none;text-align:center}
+#cardAccentLine{height:5px;background:linear-gradient(90deg,#3b82f6,#8b5cf6);flex-shrink:0}
+#cardHeader{padding:14px 18px 10px;border-bottom:2px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+#cardBodySection{flex:1;display:flex;flex-direction:column;justify-content:center;padding:16px 18px;overflow:hidden}
+#cardFooter{padding:10px 18px;border-top:2px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+#extraBoxesArea{padding:0 14px 8px;display:flex;flex-direction:column;gap:5px;min-height:0}
+
+/* Transfer arrows area — absolutely positioned, draggable */
+#transferArrowsArea{position:absolute;z-index:16;display:none;flex-direction:column;align-items:center;gap:4px;left:50%;top:55%;transform:translateX(-50%);cursor:default;touch-action:none}
+#transferArrowsArea .float-handle{width:100%;background:rgba(0,0,0,.45);border-radius:6px 6px 0 0;text-align:center;font-size:9px;color:rgba(255,255,255,.7);padding:3px 8px;cursor:move;user-select:none;letter-spacing:1px}
+#transferArrowsArea .arr-row{display:flex;align-items:center;justify-content:center;gap:10px;padding:4px 10px}
+.transfer-arrow{display:inline-flex;align-items:center;gap:3px;font-size:28px;font-weight:900;line-height:1;user-select:none;position:relative;padding:4px 8px;border-radius:8px}
+.transfer-arrow .arr-del{position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;display:none;align-items:center;justify-content:center;cursor:pointer;font-weight:900;line-height:1}
+.transfer-arrow:hover .arr-del{display:flex}
+
+/* Multiple images — absolutely positioned, draggable */
+#multiImagesArea{position:absolute;z-index:15;display:none;flex-direction:column;left:0;top:200px;width:360px;gap:0;overflow:hidden;cursor:default;touch-action:none}
+#multiImagesArea .float-handle{width:100%;background:rgba(0,0,0,.5);text-align:center;font-size:9px;color:rgba(255,255,255,.7);padding:4px 8px;cursor:move;user-select:none;letter-spacing:1px;flex-shrink:0}
+#multiImagesArea .imgs-row{display:flex;flex:1;gap:6px;padding:0 6px 6px;overflow:hidden}
+#multiImagesArea.layout-vertical .imgs-row{flex-direction:column}
+#multiImagesArea.layout-horizontal .imgs-row{flex-direction:row}
+.multi-img-wrap{position:relative;flex:1;min-width:0;overflow:hidden;border-radius:8px}
+.multi-img-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.multi-img-wrap .img-del{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:900}
+.multi-img-wrap .img-del:hover{background:rgba(239,68,68,.9)}
+
+/* Free text overlay */
+.free-text-el{position:absolute;z-index:18;cursor:move;user-select:none;font-family:'Archivo Black',sans-serif;font-size:16px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.8);letter-spacing:1px;text-transform:uppercase;padding:4px 10px;outline:none;white-space:nowrap;border-radius:4px}
+.free-text-el.selected{outline:2px dashed rgba(255,255,255,.7)!important}
+
+/* TEXT */
+#cardTime{background:#2563eb;color:#fff;padding:5px 13px;font-family:'Archivo Black',sans-serif;font-size:15px;letter-spacing:2px;border-radius:5px;outline:none;display:inline-block}
+#cardTitle{font-family:'Archivo Black',sans-serif;font-size:20px;line-height:1.18;color:#111827;margin-bottom:9px;word-break:break-word;outline:none;text-transform:uppercase}
+#cardBodyText{font-family:'Inter',sans-serif;font-size:13px;font-weight:500;line-height:1.65;color:#4b5563;word-break:break-word;outline:none}
+#cardTag{font-family:'Inter',sans-serif;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#9ca3af;outline:none}
+#cardDate{font-family:'Inter',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;color:#374151;outline:none}
+#ficupLogo{width:36px;height:36px;object-fit:contain;flex-shrink:0}
+
+/* LOGO */
+#logoWrapper{display:none;align-items:center;justify-content:center;margin:0 auto 14px;position:relative;width:96px;height:96px}
+#logoBgCircle{position:absolute;inset:0;border-radius:50%;background:#ffffff;z-index:0;border:3px solid #e5e7eb}
+#teamLogo{position:relative;z-index:1;max-width:78px;max-height:78px;width:auto;height:auto;object-fit:contain}
+
+/* draggable overlay badge */
+#mainTitleEl{position:absolute;z-index:20;left:50%;top:8px;transform:translateX(-50%);cursor:move;
+  font-family:'Archivo Black',sans-serif;font-size:13px;letter-spacing:2px;text-transform:uppercase;
+  color:#fff;background:rgba(37,99,235,.9);padding:4px 14px;border-radius:20px;
+  user-select:none;outline:none;max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:none}
+
+/* extra boxes */
+.extra-box{border-radius:9px;padding:9px 28px 9px 12px;font-family:'Archivo Black',sans-serif;font-size:14px;text-transform:uppercase;letter-spacing:1.5px;text-align:center;outline:none;position:relative;word-break:break-word;cursor:text;box-shadow:0 4px 15px rgba(0,0,0,.2);border:1px solid rgba(255,255,255,.2)}
+.xdel{position:absolute;top:5px;right:6px;font-size:11px;cursor:pointer;opacity:0;font-weight:900;color:rgba(0,0,0,.5)}
+.extra-box:hover .xdel{opacity:1}
+.box-ufficiale{background:linear-gradient(135deg,#ef4444 0%,#7f1d1d 100%);color:#fff;transform:skewX(-5deg)}
+.box-gold{background:linear-gradient(135deg,#fcd34d 0%,#b45309 100%);color:#78350f;border-bottom:4px solid #78350f}
+.box-neon{background:linear-gradient(90deg,#3b82f6 0%,#8b5cf6 100%);color:#fff;border-radius:50px 5px 50px 5px}
+
+[contenteditable="true"]{outline:2px dashed #3b82f6!important;border-radius:3px;cursor:text}
+[contenteditable="true"]:focus{outline:2px solid #2563eb!important}
+
+/* ════════ CONSOLE ════════ */
+.console-wrap{background:#fff;border-radius:18px;box-shadow:0 8px 40px rgba(0,0,0,.35);overflow:hidden}
+details{border-bottom:1px solid #f1f5f9}
+details:last-child{border-bottom:none}
+summary{list-style:none;display:flex;align-items:center;gap:8px;padding:13px 16px;cursor:pointer;
+  font-size:12px;font-weight:800;color:#1e293b;background:#f8fafc;transition:background .15s;user-select:none}
+summary::-webkit-details-marker{display:none}
+summary:hover{background:#f1f5f9}
+details[open]>summary{background:#eff6ff;color:#1d4ed8}
+summary .arr{font-size:9px;color:#94a3b8;margin-left:auto;display:inline-block;transition:transform .2s}
+details[open]>summary .arr{transform:rotate(90deg)}
+.sec{padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.slb{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:#64748b}
+.sl-row{display:flex;align-items:center;gap:5px}
+.sl-row label{font-size:10px;color:#64748b;width:66px;flex-shrink:0;white-space:nowrap}
+.sl-row input[type=range]{flex:1;-webkit-appearance:none;height:9px;border-radius:9px;background:#e2e8f0;outline:none;cursor:pointer;touch-action:none}
+.sl-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:#3b82f6;cursor:pointer;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.pm{display:flex;gap:2px;flex-shrink:0}
+.pm button{width:28px;height:28px;border:1.5px solid #e2e8f0;border-radius:7px;background:#f8fafc;font-size:16px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;color:#374151}
+.pm button:active{background:#e2e8f0;transform:scale(.95)}
+.sv{font-size:10px;font-weight:700;color:#2563eb;width:28px;text-align:right;flex-shrink:0}
+.btn{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;padding:6px 10px;font-size:10px;font-weight:700;cursor:pointer;transition:background .12s;white-space:nowrap;color:#374151;line-height:1.3}
+.btn:hover{background:#e2e8f0}
+.btn:active{transform:scale(.96)}
+.btn.on{background:#3b82f6;color:#fff;border-color:#3b82f6}
+.btn.red{background:#fee2e2;color:#dc2626;border-color:#fca5a5}
+.btn.grn{background:#dcfce7;color:#16a34a;border-color:#86efac}
+.btn.zip{background:linear-gradient(135deg,#059669,#065f46);color:#fff;border-color:#059669;font-size:11px;padding:8px 14px}
+.br{display:flex;flex-wrap:wrap;gap:5px}
+.div{height:1px;background:#f1f5f9}
+.csw{width:28px;height:28px;border-radius:6px;border:1px solid #e2e8f0;cursor:pointer;padding:2px;flex-shrink:0}
+.tg{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.txi{height:46px;border-radius:9px;border:2px solid #e2e8f0;cursor:pointer;position:relative;overflow:hidden;transition:border-color .15s}
+.txi:hover{border-color:#94a3b8;transform:scale(1.03)}
+.txi.on{border-color:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,.3)}
+.txi-l{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:center;padding:3px;font-size:8px;font-weight:800;color:rgba(255,255,255,.9);text-shadow:0 1px 3px rgba(0,0,0,.8);text-align:center;line-height:1.2;background:linear-gradient(transparent 40%,rgba(0,0,0,.5))}
+.txi-l.dark{color:rgba(0,0,0,.6);text-shadow:none;background:linear-gradient(transparent 40%,rgba(255,255,255,.5))}
+.fxg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.fxb{padding:7px 4px;border-radius:8px;border:1px solid #e2e8f0;cursor:pointer;font-size:9px;font-weight:700;text-align:center;background:#f8fafc;transition:all .12s;line-height:1.3}
+.fxb:hover{background:#e2e8f0}
+.fxb.on{background:#3b82f6;color:#fff;border-color:#3b82f6}
+.tdot{width:30px;height:30px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .15s;flex-shrink:0}
+.tdot:hover{transform:scale(1.12)}
+.tdot.on{border-color:#1d4ed8;box-shadow:0 0 0 2px #fff,0 0 0 4px #1d4ed8}
+.lrow{display:flex;align-items:center;gap:6px;padding:7px 8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:9px;margin-bottom:5px}
+.leye{font-size:16px;cursor:pointer;flex-shrink:0}
+.lname{flex:1;font-size:11px;font-weight:700;color:#374151}
+.lbtns{display:flex;gap:3px}
+.lbtns button{background:#e2e8f0;border:none;border-radius:5px;width:24px;height:24px;cursor:pointer;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.lbtns button:hover{background:#cbd5e1}
+#logoPicker{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;max-height:260px;overflow-y:auto}
+.lpi{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px;border-radius:8px;border:2px solid transparent}
+.lpi:hover{border-color:#93c5fd;background:#eff6ff}
+.lpi img{width:32px;height:32px;object-fit:contain}
+.lpi span{font-size:7px;font-weight:700;text-align:center;color:#374151;line-height:1.1}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:10px}
+
+/* Arrow style presets */
+.arr-style-1{font-family:'Archivo Black',sans-serif;letter-spacing:-4px}
+.arr-style-2{font-family:'Bebas Neue',sans-serif;letter-spacing:2px;font-size:22px}
+.arr-style-3{font-family:'Inter',sans-serif;font-weight:900;font-size:32px;letter-spacing:-6px}
+
+/* Frame presets */
+.frame-glow-blue{box-shadow:inset 0 0 20px rgba(59,130,246,.4),inset 0 0 4px rgba(59,130,246,.8)!important}
+.frame-glow-gold{box-shadow:inset 0 0 20px rgba(245,197,24,.4),inset 0 0 4px rgba(245,197,24,.8)!important}
+.frame-glow-red{box-shadow:inset 0 0 20px rgba(239,68,68,.4),inset 0 0 4px rgba(239,68,68,.8)!important}
+.frame-glow-green{box-shadow:inset 0 0 20px rgba(16,185,129,.4),inset 0 0 4px rgba(16,185,129,.8)!important}
+.frame-glow-purple{box-shadow:inset 0 0 20px rgba(139,92,246,.4),inset 0 0 4px rgba(139,92,246,.8)!important}
+</style>
+</head>
+<body>
+<div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center;padding:12px;align-items:flex-start">
+
+<!-- ═══════ CONSOLE ═══════ -->
+<div style="width:100%;max-width:410px;display:flex;flex-direction:column;gap:8px">
+
+<!-- Brand -->
+<div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+  <div style="display:flex;align-items:center;gap:8px">
+    <img src="https://i.ibb.co/4n6qRDx2/photo.png" style="width:30px;height:30px;object-fit:contain">
+    <div>
+      <div style="color:#fff;font-family:'Archivo Black',sans-serif;font-size:13px">FiCup Box News Pro</div>
+      <div style="color:rgba(255,255,255,.4);font-size:9px">Enhanced — Logo BG · Cornici · Multi-Img · Frecce · Testo Libero</div>
+    </div>
+  </div>
+  <button onclick="openFirebase()" style="background:linear-gradient(135deg,#ea580c,#dc2626);color:#fff;border:none;border-radius:9px;padding:7px 12px;font-size:9px;font-weight:800;cursor:pointer">⚽ LOGHI</button>
+</div>
+
+<div class="console-wrap">
+
+  <!-- ① INPUT -->
+  <details open>
+    <summary>📥 Input Notizie <span class="arr">▶</span></summary>
+    <div class="sec">
+      <div class="slb">Incolla testo</div>
+      <textarea id="rawData" rows="4" placeholder="18:30&#10;TITOLO NOTIZIA&#10;Corpo testo..." style="width:100%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:10px;font-size:11px;outline:none;resize:none;font-family:monospace;line-height:1.5"></textarea>
+      <button id="parseBtn" style="width:100%;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-family:'Archivo Black',sans-serif;letter-spacing:1px;border:none;border-radius:10px;padding:11px;cursor:pointer;font-size:11px">⚡ GENERA CARD</button>
+      <div class="div"></div>
+      <div class="slb">Da URL sito</div>
+      <input id="urlInput" type="url" placeholder="https://..." style="width:100%;border:1px solid #e2e8f0;border-radius:10px;padding:9px 12px;font-size:11px;outline:none;background:#f8fafc">
+      <button id="urlBtn" onclick="fetchUrl()" style="width:100%;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;font-weight:800;border:none;border-radius:10px;padding:10px;cursor:pointer;font-size:11px">🌐 LEGGI DA SITO</button>
+      <div id="urlStatus" style="font-size:10px;text-align:center;min-height:16px;color:#64748b;line-height:1.4"></div>
+    </div>
+  </details>
+
+  <!-- ② TESTI -->
+  <details open>
+    <summary>✏️ Testi & Font <span class="arr">▶</span></summary>
+    <div class="sec">
+      <div class="slb">Badge Titolo (trascinabile)</div>
+      <div class="br">
+        <button class="btn" onclick="editEl('mainTitleEl')">✏️ Testo</button>
+        <button class="btn grn" onclick="setVis('mainTitleEl','block')">Mostra</button>
+        <button class="btn red" onclick="setVis('mainTitleEl','none')">Nascondi</button>
+        <input type="color" value="#ffffff" onchange="colorEl('mainTitleEl',this.value)" class="csw">
+        <input type="color" value="#2563eb" onchange="document.getElementById('mainTitleEl').style.background=this.value" class="csw" title="Sfondo badge">
+      </div>
+      <div class="sl-row">
+        <label>Dimensione</label>
+        <div class="pm"><button onclick="adj('sl-mt',-1,'mainTitleEl')">−</button></div>
+        <input type="range" id="sl-mt" min="9" max="28" value="13" step="1" onchange="applyFsz('mainTitleEl',this)">
+        <div class="pm"><button onclick="adj('sl-mt',1,'mainTitleEl')">+</button></div>
+        <span class="sv" id="sv-mt">13</span>
+      </div>
+      <div class="div"></div>
+      <div class="slb">Orario / Badge</div>
+      <div class="br">
+        <button class="btn" onclick="editEl('cardTime')">✏️</button>
+        <button class="btn" onclick="tgBold('cardTime')"><b>B</b></button>
+        <input type="color" value="#ffffff" onchange="colorEl('cardTime',this.value)" class="csw" title="Testo">
+        <input type="color" value="#2563eb" onchange="document.getElementById('cardTime').style.background=this.value" class="csw" title="Sfondo">
+        <button class="btn grn" onclick="setVis('cardTime','inline-block')">Mostra</button>
+        <button class="btn red" onclick="setVis('cardTime','none')">Nascondi Ora</button>
+      </div>
+      <div class="slb">Header intero</div>
+      <div class="br">
+        <button class="btn grn" onclick="setVis('cardHeader','flex')">Mostra Header</button>
+        <button class="btn red" onclick="hideHeaderKeepLogo()">Nascondi Ora (tieni logo)</button>
+        <button class="btn" onclick="restoreHeader()">↺ Ripristina</button>
+        <button class="btn red" onclick="setVis('cardHeader','none')">✕ Nascondi tutto</button>
+      </div>
+      <div class="sl-row">
+        <label>Dimensione</label>
+        <div class="pm"><button onclick="adj('sl-ct',-1,'cardTime')">−</button></div>
+        <input type="range" id="sl-ct" min="9" max="28" value="15" step="1" onchange="applyFsz('cardTime',this)">
+        <div class="pm"><button onclick="adj('sl-ct',1,'cardTime')">+</button></div>
+        <span class="sv" id="sv-ct">15</span>
+      </div>
+      <div class="div"></div>
+      <div class="slb">Titolo Notizia</div>
+      <div class="br">
+        <button class="btn" onclick="editEl('cardTitle')">✏️</button>
+        <button class="btn" onclick="tgBold('cardTitle')"><b>B</b></button>
+        <button class="btn on" id="uc-cardTitle" onclick="tgUppercase('cardTitle')">AA</button>
+        <button class="btn" onclick="alignEl('cardTitle','left')">◀</button>
+        <button class="btn" onclick="alignEl('cardTitle','center')">■</button>
+        <button class="btn" onclick="alignEl('cardTitle','right')">▶</button>
+        <input type="color" value="#111827" onchange="colorEl('cardTitle',this.value)" class="csw">
+      </div>
+      <div class="sl-row">
+        <label>Dimensione</label>
+        <div class="pm"><button onclick="adj('sl-ti',-1,'cardTitle')">−</button></div>
+        <input type="range" id="sl-ti" min="10" max="42" value="20" step="1" onchange="applyFsz('cardTitle',this)">
+        <div class="pm"><button onclick="adj('sl-ti',1,'cardTitle')">+</button></div>
+        <span class="sv" id="sv-ti">20</span>
+      </div>
+      <div class="div"></div>
+      <div class="slb">Corpo Testo</div>
+      <div class="br">
+        <button class="btn" onclick="editEl('cardBodyText')">✏️</button>
+        <button class="btn" onclick="tgBold('cardBodyText')"><b>B</b></button>
+        <button class="btn" onclick="tgItalic('cardBodyText')">I</button>
+        <button class="btn" onclick="alignEl('cardBodyText','left')">◀</button>
+        <button class="btn" onclick="alignEl('cardBodyText','center')">■</button>
+        <button class="btn" onclick="alignEl('cardBodyText','right')">▶</button>
+        <input type="color" value="#4b5563" onchange="colorEl('cardBodyText',this.value)" class="csw">
+      </div>
+      <div class="sl-row">
+        <label>Dimensione</label>
+        <div class="pm"><button onclick="adj('sl-bt',-1,'cardBodyText')">−</button></div>
+        <input type="range" id="sl-bt" min="8" max="22" value="13" step="1" onchange="applyFsz('cardBodyText',this)">
+        <div class="pm"><button onclick="adj('sl-bt',1,'cardBodyText')">+</button></div>
+        <span class="sv" id="sv-bt">13</span>
+      </div>
+      <div class="div"></div>
+      <div class="slb">Tag / Data Footer</div>
+      <div class="br">
+        <button class="btn" onclick="editEl('cardTag')">✏️ Tag</button>
+        <button class="btn" onclick="editEl('cardDate')">✏️ Data</button>
+        <input type="color" value="#9ca3af" onchange="colorEl('cardTag',this.value);colorEl('cardDate',this.value)" class="csw">
+      </div>
+      <div class="div"></div>
+      <div class="slb">Badge Speciali</div>
+      <div class="br">
+        <button class="btn" onclick="addExtraBox('UFFICIALE','box-ufficiale')">UFFICIALE</button>
+        <button class="btn" onclick="addExtraBox('ESCLUSIVA','box-neon')">ESCLUSIVA</button>
+        <button class="btn" onclick="addExtraBox('TOP NEWS','box-gold')">TOP NEWS</button>
+        <button class="btn" onclick="addExtraBox('ULTIM\'ORA','box-neon')">ULTIM'ORA</button>
+      </div>
+      <div class="div"></div>
+      <div class="slb">Box Aggiuntivi</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px">
+        <button class="btn" onclick="addBox('highlight')">⚡ Flash</button>
+        <button class="btn" onclick="addBox('quote')">💬 Citaz.</button>
+        <button class="btn" onclick="addBox('stat')">📊 Stat</button>
+        <button class="btn" onclick="addBox('alert')">🚨 Alert</button>
+        <button class="btn" onclick="addBox('tag')">🏷 Label</button>
+        <button class="btn" onclick="addBox('dark')">⬛ Dark</button>
+      </div>
+      <div class="div"></div>
+      <div class="slb">Font Globale</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px">
+        <button class="btn" onclick="applyFont('Archivo Black')">Archivo</button>
+        <button class="btn" onclick="applyFont('Bebas Neue')">Bebas</button>
+        <button class="btn" onclick="applyFont('Oswald')">Oswald</button>
+        <button class="btn" onclick="applyFont('Anton')">Anton</button>
+        <button class="btn" onclick="applyFont('Teko')">Teko</button>
+        <button class="btn" onclick="applyFont('Inter')">Inter</button>
+        <button class="btn" onclick="applyFont('Montserrat')">Montserrat</button>
+      </div>
+    </div>
+  </details>
+
+  <!-- ③ TESTO LIBERO -->
+  <details>
+    <summary>📌 Testo Libero & Sovrapposizioni <span class="arr">▶</span></summary>
+    <div class="sec">
+      <div class="slb">Aggiungi testo posizionabile liberamente</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <input id="freeTextInput" type="text" placeholder="es. Foto allegata" style="flex:1;min-width:0;border:1px solid #e2e8f0;border-radius:8px;padding:8px;font-size:12px;outline:none;background:#f8fafc">
+        <button class="btn grn" onclick="addFreeText()">+ Aggiungi</button>
+      </div>
+      <div class="slb">Preset veloci</div>
+      <div class="br">
+        <button class="btn" onclick="addFreeTextVal('📸 FOTO ALLEGATA')">📸 Foto</button>
+        <button class="btn" onclick="addFreeTextVal('HERE WE GO! ✅')">HERE WE GO</button>
+        <button class="btn" onclick="addFreeTextVal('🚨 BREAKING')">BREAKING</button>
+        <button class="btn" onclick="addFreeTextVal('✅ UFFICIALE')">UFFICIALE</button>
+        <button class="btn" onclick="addFreeTextVal('🔴 LIVE')">LIVE</button>
+        <button class="btn" onclick="addFreeTextVal('⚽ GOL!')">GOL!</button>
+        <button class="btn" onclick="addFreeTextVal('💰 AFFARE FATTO')">AFFARE FATTO</button>
+        <button class="btn" onclick="addFreeTextVal('📋 ACCORDO RAGGIUNTO')">ACCORDO</button>
+      </div>
+      <div class="slb">Controlli elemento selezionato</div>
+      <div class="br" id="freeTextControls" style="opacity:0.4;pointer-events:none">
+        <input type="color" id="ftColor" value="#ffffff" onchange="setSelectedFtColor(this.value)" class="csw" title="Colore testo">
+        <input type="color" id="ftBg" value="#00000000" onchange="setSelectedFtBg(this.value)" class="csw" title="Sfondo">
+        <button class="btn" onclick="setSelectedFtBg('transparent')">No BG</button>
+        <button class="btn" onclick="tgSelectedFtBold()"><b>B</b></button>
+        <button class="btn red" onclick="deleteSelectedFt()">✕ Elimina</button>
+      </div>
+      <div class="sl-row">
+        <label>Dimensione</label>
+        <div class="pm"><button onclick="adjSelectedFtSize(-2)">−</button></div>
+        <input type="range" id="sl-ft" min="8" max="72" value="16" step="1" oninput="setSelectedFtSize(this.value);document.getElementById('sv-ft').textContent=this.value">
+        <div class="pm"><button onclick="adjSelectedFtSize(2)">+</button></div>
+        <span class="sv" id="sv-ft">16</span>
+      </div>
+      <div class="slb">Shadow testo</div>
+      <div class="br">
+        <button class="btn" onclick="setSelectedFtShadow('0 2px 8px rgba(0,0,0,.9)')">Nero</button>
+        <button class="btn" onclick="setSelectedFtShadow('0 0 10px rgba(59,130,246,.9)')">Blu Glow</button>
+        <button class="btn" onclick="setSelectedFtShadow('0 0 10px rgba(245,197,24,.9)')">Gold Glow</button>
+        <button class="btn" onclick="setSelectedFtShadow('none')">Nessuno</button>
+      </div>
+      <p style="font-size:9px;color:#94a3b8;line-height:1.4">Clicca un elemento per selezionarlo, poi trascina per posizionarlo. Doppio clic per modificare il testo.</p>
+    </div>
+  </details>
+
+  <!-- ④ FRECCE TRASFERIMENTO -->
+  <details>
+    <summary>➡️ Frecce Trasferimento <span class="arr">▶</span></summary>
+    <div class="sec">
+      <div class="slb">Area frecce (trascinabile sulla card)</div>
+      <div class="br">
+        <button class="btn grn" onclick="showArrowArea()">Mostra</button>
+        <button class="btn red" onclick="hideArrowArea()">Nascondi</button>
+        <button class="btn" onclick="centerArrowArea()">⊕ Centra</button>
+      </div>
+      <div class="slb">Aggiungi freccia</div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:4px;flex:1">
+          <label style="font-size:9px;color:#64748b">Direzione</label>
+          <div class="br">
+            <button class="btn on" id="arrDirR" onclick="setArrDir('right',this)">→ Destra</button>
+            <button class="btn" id="arrDirL" onclick="setArrDir('left',this)">← Sinistra</button>
+          </div>
+        </div>
+      </div>
+      <div class="slb">Stile</div>
+      <div class="br" id="arrStyleBtns">
+        <button class="btn on" onclick="setArrStyle(0,this)">⚡ Neon</button>
+        <button class="btn" onclick="setArrStyle(1,this)">▶▶▶ Sport</button>
+        <button class="btn" onclick="setArrStyle(2,this)">→→→ Slim</button>
+        <button class="btn" onclick="setArrStyle(3,this)">▷▷▷ Outline</button>
+      </div>
+      <div class="slb">Colore freccia</div>
+      <div class="br">
+        <input type="color" id="arrColor" value="#22c55e" onchange="setArrColorLive(this.value)" class="csw" style="width:34px;height:34px">
+        <button class="btn" onclick="setArrColorLive('#22c55e')" style="background:#22c55e;color:#fff">Verde</button>
+        <button class="btn" onclick="setArrColorLive('#ef4444')" style="background:#ef4444;color:#fff">Rosso</button>
+        <button class="btn" onclick="setArrColorLive('#3b82f6')" style="background:#3b82f6;color:#fff">Blu</button>
+        <button class="btn" onclick="setArrColorLive('#f5c518')" style="background:#f5c518;color:#222">Oro</button>
+        <button class="btn" onclick="setArrColorLive('#fff')" style="background:#aaa;color:#fff">Bianco</button>
+      </div>
+      <div class="slb">Sfondo freccia</div>
+      <div class="br">
+        <input type="color" id="arrBg" value="#111111" onchange="setArrBgLive(this.value)" class="csw" style="width:34px;height:34px">
+        <button class="btn" onclick="setArrBgLive('transparent')">Trasparente</button>
+        <button class="btn" onclick="setArrBgLive('#111111')">Nero</button>
+        <button class="btn" onclick="setArrBgLive('#1e3a8a')">Blu Scuro</button>
+      </div>
+      <div class="sl-row">
+        <label>Dimensione</label>
+        <div class="pm"><button onclick="adjArrSize(-2)">−</button></div>
+        <input type="range" id="sl-as" min="16" max="72" value="32" step="2" oninput="setArrSize(this.value);document.getElementById('sv-as').textContent=this.value">
+        <div class="pm"><button onclick="adjArrSize(2)">+</button></div>
+        <span class="sv" id="sv-as">32</span>
+      </div>
+      <button class="btn grn" onclick="addTransferArrow()">+ Aggiungi Freccia</button>
+    </div>
+  </details>
+
+  <!-- ⑤ IMMAGINI -->
+  <details>
+    <summary>🖼 Immagini Multiplas <span class="arr">▶</span></summary>
+    <div class="sec">
+      <div class="slb">Logo Club (sfondo card)</div>
+      <div class="br">
+        <button class="btn grn" onclick="openLogoPicker()">🔄 Scegli</button>
+        <button class="btn red" onclick="removeLogo()">✕ Rimuovi</button>
+      </div>
+      <div class="sl-row">
+        <label>Dimensione logo</label>
+        <div class="pm"><button onclick="adjLogo(-4)">−</button></div>
+        <input type="range" id="sl-lg" min="40" max="160" value="96" step="4" onchange="resizeLogo(this.value)">
+        <div class="pm"><button onclick="adjLogo(4)">+</button></div>
+        <span class="sv" id="sv-lg">96</span>
+      </div>
+      <div class="slb">Cerchio Sfondo Logo</div>
+      <div class="br">
+        <button class="btn grn" onclick="setVis('logoBgCircle','block')">⭕ Mostra</button>
+        <button class="btn red" onclick="setVis('logoBgCircle','none')">✕ Nascondi</button>
+        <input type="color" value="#ffffff" onchange="document.getElementById('logoBgCircle').style.background=this.value" class="csw">
+        <input type="color" value="#e5e7eb" onchange="document.getElementById('logoBgCircle').style.borderColor=this.value" class="csw" title="Bordo">
+        <div class="pm"><button onclick="adjRing(-1)">−</button></div>
+        <span id="sv-ring" style="font-size:10px;color:#2563eb;width:20px;text-align:center">3</span>
+        <div class="pm"><button onclick="adjRing(1)">+</button></div>
+      </div>
+      <div class="div"></div>
+      <div class="slb">✨ Effetti Rilievo Logo</div>
+      <div class="br" style="flex-wrap:wrap">
+        <button class="btn on" onclick="setLogoRelief('none',this)">Normale</button>
+        <button class="btn" onclick="setLogoRelief('emboss-light',this)">🌟 Rilievo Chiaro</button>
+        <button class="btn" onclick="setLogoRelief('emboss-dark',this)">⚫ Rilievo Scuro</button>
+        <button class="btn" onclick="setLogoRelief('glow-white',this)">💡 Bagliore Bianco</button>
+        <button class="btn" onclick="setLogoRelief('glow-gold',this)">🟡 Bagliore Oro</button>
+        <button class="btn" onclick="setLogoRelief('metal',this)">🔩 Metallo</button>
+        <button class="btn" onclick="setLogoRelief('neon-blue',this)">💙 Neon Blu</button>
+        <button class="btn" onclick="setLogoRelief('shadow-3d',this)">🧊 3D Ombra</button>
+      </div>
+      <div class="sl-row">
+        <label>Intensità</label>
+        <div class="pm"><button onclick="adjLogoReliefInt(-0.1)">−</button></div>
+        <input type="range" id="sl-lri" min="0.1" max="3" value="1" step="0.05" oninput="adjLogoReliefInt(0,+this.value);document.getElementById('sv-lri').textContent=Math.round(+this.value*100)+'%'">
+        <div class="pm"><button onclick="adjLogoReliefInt(0.1)">+</button></div>
+        <span class="sv" id="sv-lri">100%</span>
+      </div>
+      <div class="div"></div>
+      <div class="slb">🌟 Logo come SFONDO CARD</div>
+      <div class="br">
+        <button class="btn grn" onclick="setBgLogoFromLogo()">Usa logo corrente</button>
+        <button class="btn red" onclick="removeBgLogo()">✕ Rimuovi sfondo</button>
+      </div>
+      <div class="sl-row">
+        <label>Opacità</label>
+        <div class="pm"><button onclick="adjBgLogo('op',-5)">−</button></div>
+        <input type="range" id="sl-bgop" min="0" max="100" value="18" step="1" oninput="setBgLogoOp(this.value);document.getElementById('sv-bgop').textContent=this.value">
+        <div class="pm"><button onclick="adjBgLogo('op',5)">+</button></div>
+        <span class="sv" id="sv-bgop">18</span>
+      </div>
+      <div class="sl-row">
+        <label>Sfocatura</label>
+        <div class="pm"><button onclick="adjBgLogo('blur',-1)">−</button></div>
+        <input type="range" id="sl-bgbl" min="0" max="40" value="0" step="1" oninput="setBgLogoBlur(this.value);document.getElementById('sv-bgbl').textContent=this.value">
+        <div class="pm"><button onclick="adjBgLogo('blur',1)">+</button></div>
+        <span class="sv" id="sv-bgbl">0</span>
+      </div>
+      <div class="sl-row">
+        <label>Grandezza</label>
+        <div class="pm"><button onclick="adjBgLogo('size',-5)">−</button></div>
+        <input type="range" id="sl-bgsc" min="20" max="150" value="80" step="5" oninput="setBgLogoSize(this.value);document.getElementById('sv-bgsc').textContent=this.value">
+        <div class="pm"><button onclick="adjBgLogo('size',5)">+</button></div>
+        <span class="sv" id="sv-bgsc">80</span>
+      </div>
+      <div class="div"></div>
+      <div class="slb">Immagine Personalizzata Singola</div>
+      <input type="file" id="imageUpload" accept="image/*" style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:8px;font-size:11px">
+      <input type="text" id="imageUrl" placeholder="https://esempio.com/immagine.png" style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:8px;margin-top:4px;font-size:11px;outline:none">
+      <div class="br">
+        <button class="btn grn" id="loadImageBtn">🌐 Da Link</button>
+        <button class="btn red" id="removeBtn">✕ Rimuovi</button>
+      </div>
+      <div class="div"></div>
+      <div class="slb">📷 Immagini Multiple (trascinabili sulla card)</div>
+      <div class="br">
+        <button class="btn on" id="layoutH" onclick="setImgLayout('horizontal',this)">↔ Orizzontale</button>
+        <button class="btn" id="layoutV" onclick="setImgLayout('vertical',this)">↕ Verticale</button>
+        <button class="btn" onclick="centerImgArea()">⊕ Centra</button>
+      </div>
+      <div class="sl-row">
+        <label>Altezza</label>
+        <div class="pm"><button onclick="adjMultiImgH(-10)">−</button></div>
+        <input type="range" id="sl-mih" min="60" max="400" value="160" step="10" oninput="setMultiImgH(this.value);document.getElementById('sv-mih').textContent=this.value">
+        <div class="pm"><button onclick="adjMultiImgH(10)">+</button></div>
+        <span class="sv" id="sv-mih">160</span>
+      </div>
+      <div class="sl-row">
+        <label>Larghezza</label>
+        <div class="pm"><button onclick="adjMultiImgW(-10)">−</button></div>
+        <input type="range" id="sl-miw" min="80" max="360" value="360" step="10" oninput="setMultiImgW(this.value);document.getElementById('sv-miw').textContent=this.value">
+        <div class="pm"><button onclick="adjMultiImgW(10)">+</button></div>
+        <span class="sv" id="sv-miw">360</span>
+      </div>
+      <div class="br">
+        <button class="btn grn" onclick="addMultiImgSlot('file')">📁 + Da File</button>
+        <button class="btn grn" onclick="addMultiImgSlot('url')">🌐 + Da URL</button>
+        <button class="btn red" onclick="clearAllMultiImgs()">✕ Svuota</button>
+      </div>
+      <p style="font-size:9px;color:#94a3b8">Trascina la barra scura per riposizionare il blocco immagini. Le immagini vengono scalate correttamente nell'export PNG.</p>
+    </div>
+  </details>
+
+  <!-- ⑥ DESIGN -->
+  <details>
+    <summary>🎨 Design & Colori <span class="arr">▶</span></summary>
+    <div class="sec">
+      <div class="slb">30 Temi</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px" id="themeDots"></div>
+      <div class="div"></div>
+      <div class="slb">Sfumatura Custom</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input type="color" id="gc1" value="#ffffff" class="csw" style="width:34px;height:34px">
+        <span style="color:#94a3b8">→</span>
+        <input type="color" id="gc2" value="#e2e8f0" class="csw" style="width:34px;height:34px">
+        <select id="gdir" style="flex:1;border:1px solid #e2e8f0;border-radius:8px;padding:6px;font-size:10px;outline:none;background:#fff">
+          <option value="135deg">↘ Diagonale</option>
+          <option value="180deg">↓ Verticale</option>
+          <option value="90deg">→ Orizzontale</option>
+        </select>
+        <button class="btn grn" onclick="applyGrad()">✓</button>
+      </div>
+      <div class="div"></div>
+      <div class="slb">Colore Accento / Bordi</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input type="color" id="accentClr" value="#e5e7eb" oninput="setAccent(this.value)" class="csw" style="width:34px;height:34px">
+        <div class="br" style="flex:1">
+          <button class="btn" onclick="setBW(0)">Off</button>
+          <button class="btn" onclick="setBW(1)">1px</button>
+          <button class="btn" onclick="setBW(2)">2px</button>
+          <button class="btn" onclick="setBW(4)">4px</button>
+          <button class="btn" onclick="setBS('solid')">Solid</button>
+          <button class="btn" onclick="setBS('dashed')">Dash</button>
+        </div>
+      </div>
+      <div class="div"></div>
+      <div class="slb">🖼 Cornice / Frame Card</div>
+      <div class="br">
+        <input type="color" id="frameColor" value="#3b82f6" onchange="setFrameColor(this.value)" class="csw" style="width:34px;height:34px">
+        <select id="frameStyle" onchange="setFrameStyle(this.value)" style="flex:1;border:1px solid #e2e8f0;border-radius:8px;padding:6px;font-size:10px;outline:none;background:#fff">
+          <option value="solid">Solid</option>
+          <option value="dashed">Dashed</option>
+          <option value="dotted">Dotted</option>
+          <option value="double">Double</option>
+        </select>
+      </div>
+      <div class="sl-row">
+        <label>Spessore</label>
+        <div class="pm"><button onclick="adjFrame('w',-1)">−</button></div>
+        <input type="range" id="sl-fw" min="0" max="20" value="0" step="1" oninput="setFrameW(this.value);document.getElementById('sv-fw').textContent=this.value">
+        <div class="pm"><button onclick="adjFrame('w',1)">+</button></div>
+        <span class="sv" id="sv-fw">0</span>
+      </div>
+      <div class="sl-row">
+        <label>Raggio angoli</label>
+        <div class="pm"><button onclick="adjFrame('r',-4)">−</button></div>
+        <input type="range" id="sl-fr" min="0" max="40" value="0" step="2" oninput="setFrameR(this.value);document.getElementById('sv-fr').textContent=this.value">
+        <div class="pm"><button onclick="adjFrame('r',4)">+</button></div>
+        <span class="sv" id="sv-fr">0</span>
+      </div>
+      <div class="slb">Bagliore Interno</div>
+      <div class="br">
+        <button class="btn" onclick="setFrameGlow('blue')">🔵 Blu</button>
+        <button class="btn" onclick="setFrameGlow('gold')">✨ Gold</button>
+        <button class="btn" onclick="setFrameGlow('red')">🔴 Rosso</button>
+        <button class="btn" onclick="setFrameGlow('green')">🟢 Verde</button>
+        <button class="btn" onclick="setFrameGlow('purple')">💜 Viola</button>
+        <button class="btn red" onclick="setFrameGlow('none')">Off</button>
+      </div>
+      <div class="div"></div>
+      <div class="slb">Accent Line Superiore</div>
+      <div class="br">
+        <button class="btn grn" onclick="setVis('cardAccentLine','block')">Mostra</button>
+        <button class="btn red" onclick="setVis('cardAccentLine','none')">Nascondi</button>
+        <input type="color" id="alc1" value="#3b82f6" class="csw">
+        <input type="color" id="alc2" value="#8b5cf6" class="csw">
+        <button class="btn" onclick="setAccentGrad()">✓ Grad</button>
+      </div>
+      <div class="sl-row">
+        <label>Altezza</label>
+        <div class="pm"><button onclick="adjAL(-1)">−</button></div>
+        <input type="range" id="sl-al" min="1" max="20" value="5" step="1" onchange="document.getElementById('cardAccentLine').style.height=this.value+'px';document.getElementById('sv-al').textContent=this.value">
+        <div class="pm"><button onclick="adjAL(1)">+</button></div>
+        <span class="sv" id="sv-al">5</span>
+      </div>
+      <div class="div"></div>
+      <div class="slb">Banner Opzionale</div>
+      <div class="br">
+        <button class="btn" onclick="editEl('bannerText')">✏️ Testo</button>
+        <button class="btn grn" onclick="setVis('cardBanner','flex')">Mostra</button>
+        <button class="btn red" onclick="setVis('cardBanner','none')">Nascondi</button>
+        <input type="color" value="#111827" onchange="document.getElementById('cardBanner').style.background=this.value" class="csw">
+      </div>
+    </div>
+  </details>
+
+  <!-- ⑦ EFFETTI -->
+  <details>
+    <summary>✨ Effetti & Texture <span class="arr">▶</span></summary>
+    <div class="sec">
+      <div class="slb">20 Texture Avanzate</div>
+      <div class="tg" id="texGrid"></div>
+      <div class="sl-row" style="margin-top:2px">
+        <label>Intensità</label>
+        <div class="pm"><button onclick="adjTexOp(-5)">−</button></div>
+        <input type="range" id="sl-to" min="0" max="100" value="100" step="5" onchange="document.getElementById('texBg').style.opacity=this.value/100;document.getElementById('sv-to').textContent=this.value">
+        <div class="pm"><button onclick="adjTexOp(5)">+</button></div>
+        <span class="sv" id="sv-to">100</span>
+      </div>
+      <div class="div"></div>
+      <div class="slb">15 Sfondi Speciali</div>
+      <div class="fxg" id="fxGrid"></div>
+      <div class="div"></div>
+      <div class="slb">Filtri CSS</div>
+      <div class="sl-row">
+        <label>Luminosità</label>
+        <div class="pm"><button onclick="adjCF('brightness','sl-br',-5)">−</button></div>
+        <input type="range" id="sl-br" min="50" max="200" value="100" step="5" onchange="setCF('brightness',this.value,'%','sv-br')">
+        <div class="pm"><button onclick="adjCF('brightness','sl-br',5)">+</button></div>
+        <span class="sv" id="sv-br">100</span>
+      </div>
+      <div class="sl-row">
+        <label>Contrasto</label>
+        <div class="pm"><button onclick="adjCF('contrast','sl-co',-5)">−</button></div>
+        <input type="range" id="sl-co" min="50" max="250" value="100" step="5" onchange="setCF('contrast',this.value,'%','sv-co')">
+        <div class="pm"><button onclick="adjCF('contrast','sl-co',5)">+</button></div>
+        <span class="sv" id="sv-co">100</span>
+      </div>
+      <div class="sl-row">
+        <label>Saturazione</label>
+        <div class="pm"><button onclick="adjCF('saturate','sl-sa',-5)">−</button></div>
+        <input type="range" id="sl-sa" min="0" max="300" value="100" step="5" onchange="setCF('saturate',this.value,'%','sv-sa')">
+        <div class="pm"><button onclick="adjCF('saturate','sl-sa',5)">+</button></div>
+        <span class="sv" id="sv-sa">100</span>
+      </div>
+      <div class="sl-row">
+        <label>Sepia</label>
+        <div class="pm"><button onclick="adjCF('sepia','sl-se',-5)">−</button></div>
+        <input type="range" id="sl-se" min="0" max="100" value="0" step="5" onchange="setCF('sepia',this.value,'%','sv-se')">
+        <div class="pm"><button onclick="adjCF('sepia','sl-se',5)">+</button></div>
+        <span class="sv" id="sv-se">0</span>
+      </div>
+      <div class="sl-row">
+        <label>Tonalità</label>
+        <div class="pm"><button onclick="adjCF('hue-rotate','sl-hu',-10)">−</button></div>
+        <input type="range" id="sl-hu" min="0" max="360" value="0" step="10" onchange="setCF('hue-rotate',this.value,'deg','sv-hu')">
+        <div class="pm"><button onclick="adjCF('hue-rotate','sl-hu',10)">+</button></div>
+        <span class="sv" id="sv-hu">0</span>
+      </div>
+      <button class="btn red" onclick="resetFilters()" style="width:100%">✖ Reset Filtri</button>
+      <div class="div"></div>
+      <div class="slb">Vignette</div>
+      <div class="sl-row">
+        <label>Intensità</label>
+        <div class="pm"><button onclick="adjVig(-5)">−</button></div>
+        <input type="range" id="sl-vi" min="0" max="100" value="0" step="5" onchange="setVignette(this.value)">
+        <div class="pm"><button onclick="adjVig(5)">+</button></div>
+        <span class="sv" id="sv-vi">0</span>
+      </div>
+      <div class="div"></div>
+      <div class="slb">Preset Stile</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:5px">
+        <button class="btn" onclick="applyPreset('cinema')">🎬 Cinema</button>
+        <button class="btn" onclick="applyPreset('vintage')">📷 Vintage</button>
+        <button class="btn" onclick="applyPreset('neon')">💜 Neon</button>
+        <button class="btn" onclick="applyPreset('sport')">🏆 Sport</button>
+        <button class="btn" onclick="applyPreset('breaking')">🚨 Breaking</button>
+        <button class="btn" onclick="applyPreset('dramatic')">⚡ Dramatic</button>
+        <button class="btn grn" onclick="applyPreset('clean')">⬜ Clean</button>
+        <button class="btn red" onclick="resetAll()">✖ Reset Tutto</button>
+      </div>
+    </div>
+  </details>
+
+  <!-- ⑧ LAYER -->
+  <details>
+    <summary>📐 Livelli <span class="arr">▶</span></summary>
+    <div class="sec">
+      <div id="layerList"></div>
+      <div class="div"></div>
+      <div class="slb">Padding Sezioni</div>
+      <div class="br">
+        <button class="btn" onclick="adjPad('cardHeader',2)">Header +</button>
+        <button class="btn" onclick="adjPad('cardHeader',-2)">Header −</button>
+        <button class="btn" onclick="adjPad('cardBodySection',2)">Corpo +</button>
+        <button class="btn" onclick="adjPad('cardBodySection',-2)">Corpo −</button>
+      </div>
+    </div>
+  </details>
+
+</div><!-- /console-wrap -->
+</div><!-- /left -->
+
+<!-- ═══════ CARD ═══════ -->
+<div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+  <div style="border-radius:20px;overflow:hidden;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 20px 60px rgba(0,0,0,.5)">
+    <div id="cardWrapper">
+      <!-- Layer 0: logo sfondo -->
+      <div id="bgLogoLayer" style="display:none">
+        <img id="bgLogoImg" src="" alt="" crossorigin="anonymous">
+      </div>
+      <!-- Layer 1: texture -->
+      <div id="texBg"></div>
+      <!-- Layer 2: vignette -->
+      <div id="vigBg"></div>
+      <!-- Layer 3: frame (border overlay) -->
+      <div id="cardFrameEl"></div>
+      <!-- Draggable badge -->
+      <div id="mainTitleEl">⚽ CALCIO MERCATO FICUP</div>
+      <!-- Content -->
+      <div id="cardAccentLine"></div>
+      <div id="cardBanner"><div id="bannerText" contenteditable="false">⚽ CALCIOMERCATO FICUP 2026</div></div>
+      <div id="cardHeader">
+        <span id="cardTime">18:30</span>
+        <img id="ficupLogo" src="https://i.ibb.co/4n6qRDx2/photo.png" alt="FiCup">
+      </div>
+      <!-- Transfer arrows — draggable overlay -->
+      <div id="transferArrowsArea">
+        <div class="float-handle" id="arrHandle">⠿ FRECCE — trascina</div>
+        <div class="arr-row" id="arrRow"></div>
+      </div>
+      <!-- Multi images — draggable overlay -->
+      <div id="multiImagesArea" class="layout-horizontal">
+        <div class="float-handle" id="imgHandle">⠿ IMMAGINI — trascina</div>
+        <div class="imgs-row" id="imgsRow" style="height:160px"></div>
+      </div>
+      <!-- Body -->
+      <div id="cardBodySection">
+        <div id="customImageWrapper" style="display:none;text-align:center;margin-bottom:12px">
+          <img id="customImage" src="" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px">
+        </div>
+        <div id="logoWrapper">
+          <div id="logoBgCircle"></div>
+          <img id="teamLogo" src="" alt="" crossorigin="anonymous">
+        </div>
+        <h2 id="cardTitle">TITOLO NOTIZIA</h2>
+        <p id="cardBodyText">La descrizione della notizia verrà mostrata qui in modo chiaro e professionale.</p>
+      </div>
+      <div id="extraBoxesArea"></div>
+      <div id="cardFooter">
+        <span id="cardTag">⚽ News Aggiornate</span>
+        <span id="cardDate">11 Giugno 2026</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nav + Download -->
+  <div id="navSection" style="display:none;width:360px;flex-direction:column;align-items:center;gap:8px">
+    <div style="display:flex;gap:8px;width:100%">
+      <button id="prevBtn" onclick="goNav(-1)" disabled style="flex:1;background:rgba(255,255,255,.1);color:#fff;font-weight:800;font-size:11px;padding:12px 0;border:1px solid rgba(255,255,255,.1);border-radius:12px;cursor:pointer">◀</button>
+      <button id="downloadBtn" onclick="downloadCard()" style="flex:2;background:linear-gradient(135deg,#059669,#065f46);color:#fff;font-family:'Archivo Black',sans-serif;font-size:11px;letter-spacing:1px;border:none;border-radius:12px;padding:12px;cursor:pointer">⬇ SCARICA PNG</button>
+      <button id="nextBtn" onclick="goNav(1)" disabled style="flex:1;background:rgba(255,255,255,.1);color:#fff;font-weight:800;font-size:11px;padding:12px 0;border:1px solid rgba(255,255,255,.1);border-radius:12px;cursor:pointer">▶</button>
+    </div>
+    <p style="color:rgba(255,255,255,.35);font-size:10px">Card <span id="ci">0</span> / <span id="ct">0</span></p>
+  </div>
+
+  <!-- Always visible download row -->
+  <div style="width:360px;display:flex;gap:8px">
+    <button onclick="downloadCard()" style="flex:2;background:linear-gradient(135deg,#059669,#065f46);color:#fff;font-family:'Archivo Black',sans-serif;font-size:11px;letter-spacing:1px;border:none;border-radius:12px;padding:12px;cursor:pointer">⬇ SCARICA PNG</button>
+    <button onclick="downloadZip()" style="flex:1;background:linear-gradient(135deg,#7c3aed,#5b21b6);color:#fff;font-family:'Archivo Black',sans-serif;font-size:10px;letter-spacing:0.5px;border:none;border-radius:12px;padding:12px;cursor:pointer">📦 ZIP</button>
+  </div>
+</div>
+
+</div><!-- /layout -->
+
+<!-- LOGO PICKER -->
+<div id="lpModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:998;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:20px;padding:18px;width:min(520px,96vw);max-height:88vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <b style="font-size:13px">🔄 Scegli Logo Club</b>
+      <button onclick="closeLp()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#94a3b8">✕</button>
+    </div>
+    <div id="logoPicker"></div>
+  </div>
+</div>
+
+<!-- BG LOGO PICKER -->
+<div id="bgLpModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:998;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:20px;padding:18px;width:min(520px,96vw);max-height:88vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <b style="font-size:13px">🌟 Scegli Logo per Sfondo</b>
+      <button onclick="closeBgLp()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#94a3b8">✕</button>
+    </div>
+    <div id="bgLogoPicker"></div>
+  </div>
+</div>
+
+<!-- FIREBASE MODAL -->
+<div id="fbModal" onclick="fbBgClose(event)" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:999;align-items:center;justify-content:center">
+  <div id="fbBox" style="background:#fff;border-radius:20px;padding:20px;width:min(500px,96vw);max-height:90vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <b style="font-size:13px">⚽ Gestione Loghi Firebase</b>
+      <button onclick="closeFb()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#94a3b8">✕</button>
+    </div>
+    <div style="background:#eff6ff;border-radius:12px;padding:14px;margin-bottom:14px">
+      <input id="fbName" type="text" placeholder="Nome squadra" style="width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:8px;font-size:12px;margin-bottom:6px;outline:none">
+      <input id="fbUrl" type="text" placeholder="URL immagine" style="width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:8px;font-size:12px;margin-bottom:8px;outline:none">
+      <button id="fbSaveBtn" onclick="fbSave()" style="width:100%;background:#2563eb;color:#fff;font-weight:900;font-size:12px;padding:9px;border:none;border-radius:8px;cursor:pointer">💾 Salva su Firebase</button>
+    </div>
+    <div id="fbList"></div>
+    <div id="fbStatus" style="font-size:10px;color:#94a3b8;text-align:center;margin-top:8px"></div>
+  </div>
+</div>
+
+<!-- URL INPUT MODAL for multi-image -->
+<div id="urlImgModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:997;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:16px;padding:20px;width:min(380px,96vw)">
+    <b style="font-size:13px;display:block;margin-bottom:10px">🌐 URL Immagine</b>
+    <input id="urlImgInput" type="url" placeholder="https://..." style="width:100%;border:1px solid #e2e8f0;border-radius:8px;padding:10px;font-size:12px;outline:none;margin-bottom:10px">
+    <div style="display:flex;gap:8px">
+      <button onclick="confirmUrlImg()" style="flex:1;background:#2563eb;color:#fff;border:none;border-radius:8px;padding:10px;font-weight:800;cursor:pointer">✓ Aggiungi</button>
+      <button onclick="document.getElementById('urlImgModal').style.display='none'" style="flex:1;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;padding:10px;font-weight:700;cursor:pointer">Annulla</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, doc, setDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+const db = getFirestore(initializeApp({ apiKey:"AIzaSyAWMmt7lrRF1V6AIpQWh2CwXZE88_w_8E0", authDomain:"ficup-c9186.firebaseapp.com", projectId:"ficup-c9186" }));
+
+const BUILTIN={"Atalanta":"https://i.ibb.co/HLfTYZx7/Logo-Atalanta-Bergamo-svg.png","Bologna":"https://i.ibb.co/jkM5SPbz/Bologna-F-C-1909-logo-svg.png","Cagliari":"https://i.ibb.co/MDpds1V1/cagliari-calcio-logo-png-seeklogo-315166-3.png","Como":"https://i.ibb.co/qYhwMQzH/Logo-Como-1907-2019.png","Cremonese":"https://i.ibb.co/mCKdTQkH/Unione-Sportiva-Cremonese-logo-svg-1.png","Fiorentina":"https://i.ibb.co/4gZ5jDc5/ACF-Fiorentina-logo-Italy-2022-svg.png","Genoa":"https://i.ibb.co/Z6RcxTWw/Genoa-Cricket-and-Football-Club-logo-svg.png","Inter":"https://i.ibb.co/F4C4vHjc/FC-Internazionale-Milano-2021-svg-1.png","Juventus":"https://i.ibb.co/xtkRyBJp/Juventus-FC-2017-logo.png","Lazio":"https://i.ibb.co/840BWT8m/Stemma-della-Societ-Sportiva-Lazio-svg.png","Lecce":"https://i.ibb.co/SDQ0zy8s/US-Lecce-Stemma-svg.png","Milan":"https://i.ibb.co/B2V1c6K3/Logo-of-AC-Milan-svg.png","Napoli":"https://i.ibb.co/DgmL7YGb/SSC-Neapel-svg.png","Parma":"https://i.ibb.co/bgMLjHdf/Logo-Parma-Calcio-1913-adozione-2016-svg.png","Pisa":"https://i.ibb.co/35bNsCSV/Logo-Pisa-SC-2017-svg.png","Roma":"https://i.ibb.co/rRkxM7Bf/AS-Roma-Logo-2017-svg-1.png","Sassuolo":"https://i.ibb.co/Xrj8PYjx/Ussassuolostemma-svg.png","Torino":"https://i.ibb.co/v62Bw8qY/Torino-FC-logo-svg.png","Udinese":"https://i.ibb.co/5xhRTYmp/Logo-Udinese-Calcio-svg.png","Verona":"https://i.ibb.co/k6yWJsZf/Hellas-Verona-FC-logo-2020-svg.png","Catanzaro":"https://i.ibb.co/WNKDsLHy/catanzaro.png","Spezia":"https://i.ibb.co/PGLKsGNZ/spezia-2025-b.png","Monza":"https://i.ibb.co/WdQCGpq/monza.png","Cesena":"https://i.ibb.co/9f5LMMv/cesena.png","Benevento":"https://i.ibb.co/Q7BzG0Rj/Benevento-Calcio-svg.png","Vicenza":"https://i.ibb.co/CsnVjPyw/Logo-LR-Vicenza-Virtus-2018.png","Pescara":"https://i.ibb.co/6CYyzmx/pescara-calcio-logo-png-seeklogo-107887-1.png","Padova":"https://i.ibb.co/7t99BMX9/padova.png","Palermo":"https://i.ibb.co/mCjsJXtc/palermo.png","Juve Stabia":"https://i.ibb.co/5W56hFW7/juve-stabia-scuro.png","Sampdoria":"https://i.ibb.co/3yHr93HP/sampdoria.png","Avellino":"https://i.ibb.co/8LYHV24k/avellino.png","Bari":"https://i.ibb.co/DPXzCpby/bari.png","Virtus Entella":"https://i.ibb.co/W4pfw4Dw/entella.png","Venezia":"https://i.ibb.co/p6bRsP8S/venezia.png","Reggiana":"https://i.ibb.co/dwJGM5Qn/reggiana-2025.png","Carrarese":"https://i.ibb.co/ds9HG0rs/carrarese.png","Mantova":"https://i.ibb.co/pjnfvcjr/mantova.png","Südtirol":"https://i.ibb.co/27kq705m/sudtirol.png","Frosinone":"https://i.ibb.co/nqms2T3x/frosinone.png","Empoli":"https://i.ibb.co/p6wJrjMX/empoli.png","Modena":"https://i.ibb.co/QjH1xQv9/modena-blu-b.png","Italia":"https://i.ibb.co/ksNmFLfF/Logo-Italy-National-Football-Team-2023-svg-1.png"};
+let allLogos={...BUILTIN};
+let news=[],idx=0;
+const cssF={brightness:100,contrast:100,saturate:100,sepia:0,'hue-rotate':0};
+
+// Arrow state
+let arrDir='right', arrStyleIdx=0, arrColor='#22c55e', arrBg='#111111', arrSize=32;
+const ARR_STYLES=[
+  {right:'▶▶▶▶', left:'◀◀◀◀'},
+  {right:'>>>>', left:'<<<<'},
+  {right:'→→→', left:'←←←'},
+  {right:'▷▷▷', left:'◁◁◁'},
+];
+// Free text state
+let selectedFtEl=null;
+
+async function loadFb(){try{const s=await getDocs(collection(db,"logos"));s.forEach(d=>{allLogos[d.id]=d.data().url;});}catch{}}
+loadFb();
+
+/* ══ TEXTURE GRID ══ */
+const TEXS=[
+  {cls:'',lbl:'OFF',bg:'#e2e8f0',dark:false},
+  {cls:'tx-bokeh',lbl:'Bokeh',bg:'#0d0d2b',dark:true},
+  {cls:'tx-carbon',lbl:'Carbon',bg:'#1a1a1a',dark:true},
+  {cls:'tx-blueprint',lbl:'Blueprint',bg:'#1a3a5c',dark:true},
+  {cls:'tx-marble',lbl:'Marmo',bg:'#e8dfd3',dark:false},
+  {cls:'tx-stardust',lbl:'Stelle',bg:'#050514',dark:true},
+  {cls:'tx-cemento',lbl:'Cemento',bg:'#888a8d',dark:false},
+  {cls:'tx-gold',lbl:'Gold Foil',bg:'#7a5c1a',dark:true},
+  {cls:'tx-leather',lbl:'Leather',bg:'#4a2d1a',dark:true},
+  {cls:'tx-linen',lbl:'Lino',bg:'#f5f0e8',dark:false},
+  {cls:'tx-diag',lbl:'Diag.',bg:'#f8fafc',dark:false},
+  {cls:'tx-hex',lbl:'Esagoni',bg:'#f0f4ff',dark:false},
+  {cls:'tx-circuit',lbl:'Circuito',bg:'#0a1628',dark:true},
+  {cls:'tx-vintage',lbl:'Vintage',bg:'#d4b896',dark:false},
+  {cls:'tx-mesh',lbl:'Mesh',bg:'#f8fafc',dark:false},
+  {cls:'tx-holo',lbl:'Olografico',bg:'#f8f8ff',dark:false},
+  {cls:'tx-damask',lbl:'Damasco',bg:'#f9f4ee',dark:false},
+  {cls:'tx-topo',lbl:'Topogr.',bg:'#1a2e1a',dark:true},
+  {cls:'tx-grain',lbl:'Grain',bg:'#1c1c1c',dark:true},
+  {cls:'tx-herring',lbl:'Spina',bg:'#f1f5f9',dark:false},
+  {cls:'tx-plaid',lbl:'Plaid',bg:'#1a1a2e',dark:true},
+];
+const texCls=TEXS.map(t=>t.cls).filter(Boolean);
+(function(){
+  const g=document.getElementById('texGrid');
+  TEXS.forEach(t=>{
+    const d=document.createElement('div');
+    d.className='txi'+(t.cls===''?' on':'');
+    d.id='txb-'+t.cls;d.style.background=t.bg;
+    d.innerHTML=`<div style="position:absolute;inset:0" class="${t.cls}"></div><div class="txi-l${t.dark?'':' dark'}">${t.lbl}</div>`;
+    d.onclick=()=>setTex(t.cls,d);
+    g.appendChild(d);
+  });
+})();
+
+/* ══ FX GRID ══ */
+const FXS=[
+  {id:'fxnone',lbl:'❌ Off',bg:'#ffffff'},
+  {id:'fxrad', lbl:'🌟 Radiale',bg:'radial-gradient(ellipse at 30% 20%,rgba(99,102,241,.55),transparent 55%),radial-gradient(ellipse at 80% 80%,rgba(236,72,153,.45),transparent 55%),#0f172a'},
+  {id:'fxaur', lbl:'🌌 Aurora',bg:'linear-gradient(135deg,#064e3b,#1e40af,#4c1d95)'},
+  {id:'fxfir', lbl:'🔥 Fuoco',bg:'linear-gradient(180deg,#7c2d12,#b91c1c,#ea580c)'},
+  {id:'fxice', lbl:'❄️ Ghiaccio',bg:'linear-gradient(135deg,#0c3547,#0e7490,#38bdf8)'},
+  {id:'fxneo', lbl:'💜 Neon',bg:'radial-gradient(ellipse at 20% 80%,rgba(139,92,246,.6),transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(59,130,246,.5),transparent 50%),#0d0d0d'},
+  {id:'fxsun', lbl:'🌅 Tramonto',bg:'linear-gradient(135deg,#ff6b6b,#feca57,#ff9ff3)'},
+  {id:'fxgld', lbl:'✨ Golden',bg:'linear-gradient(135deg,#1a1200,#4d3800,#8B6914)'},
+  {id:'fxmat', lbl:'🟩 Matrix',bg:'radial-gradient(ellipse at 50% 0%,rgba(0,255,70,.2),transparent 60%),#000a00'},
+  {id:'fxint', lbl:'🔵 Inter',bg:'linear-gradient(135deg,#002060,#000,#002060)'},
+  {id:'fxmil', lbl:'🔴 Milan',bg:'linear-gradient(135deg,#8B0000,#1a1a1a,#8B0000)'},
+  {id:'fxjuv', lbl:'⚫ Juve',bg:'linear-gradient(135deg,#1a1a1a,#2d2d2d)'},
+  {id:'fxnap', lbl:'🔵 Napoli',bg:'linear-gradient(135deg,#007bcc,#005a9e,#007bcc)'},
+  {id:'fxrom', lbl:'🟡 Roma',bg:'linear-gradient(135deg,#8B1A1A,#4B0000,#8B1A1A)'},
+  {id:'fxspa', lbl:'🌌 Spazio',bg:'radial-gradient(ellipse at 40% 40%,rgba(139,92,246,.3),transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(59,130,246,.2),transparent 50%),#010210'},
+];
+(function(){
+  const g=document.getElementById('fxGrid');
+  FXS.forEach(fx=>{
+    const b=document.createElement('div');b.className='fxb';b.id=fx.id;b.textContent=fx.lbl;
+    b.onclick=()=>{document.querySelectorAll('.fxb').forEach(x=>x.classList.remove('on'));b.classList.add('on');document.getElementById('cardWrapper').style.background=fx.bg;};
+    g.appendChild(b);
+  });
+})();
+
+/* ══ THEMES ══ */
+const THEMES={white:{bg:'#ffffff',t1:'#111827',t2:'#4b5563',acc:'#e5e7eb',bdg:'#2563eb'},lightgray:{bg:'#f3f4f6',t1:'#111827',t2:'#374151',acc:'#d1d5db',bdg:'#374151'},night:{bg:'linear-gradient(135deg,#1a1a2e,#16213e)',t1:'#e2e8f0',t2:'#94a3b8',acc:'#60a5fa',bdg:'#3b82f6'},gold:{bg:'linear-gradient(135deg,#1c1c1c,#2d2500)',t1:'#f5c518',t2:'#c9a227',acc:'#f5c518',bdg:'#b8860b'},purple:{bg:'linear-gradient(135deg,#0f0c29,#302b63)',t1:'#e9d5ff',t2:'#c4b5fd',acc:'#a78bfa',bdg:'#7c3aed'},fire:{bg:'linear-gradient(180deg,#7c2d12,#ea580c)',t1:'#fef3c7',t2:'#fde68a',acc:'#f97316',bdg:'#ea580c'},forest:{bg:'linear-gradient(135deg,#052e16,#14532d)',t1:'#d1fae5',t2:'#a7f3d0',acc:'#10b981',bdg:'#065f46'},navy:{bg:'linear-gradient(135deg,#0c1445,#1e3a8a)',t1:'#e0f2fe',t2:'#bae6fd',acc:'#38bdf8',bdg:'#1d4ed8'},bordeaux:{bg:'linear-gradient(135deg,#450a0a,#991b1b)',t1:'#fee2e2',t2:'#fca5a5',acc:'#f87171',bdg:'#dc2626'},rose:{bg:'linear-gradient(135deg,#fff1f2,#fce7f3)',t1:'#881337',t2:'#9f1239',acc:'#f43f5e',bdg:'#e11d48'},teal:{bg:'linear-gradient(135deg,#064e3b,#0d9488)',t1:'#f0fdfa',t2:'#ccfbf1',acc:'#2dd4bf',bdg:'#0d9488'},indigo:{bg:'linear-gradient(135deg,#1e1b4b,#4338ca)',t1:'#e0e7ff',t2:'#c7d2fe',acc:'#818cf8',bdg:'#4338ca'},carbon:{bg:'linear-gradient(135deg,#0c0c0c,#1a1a1a)',t1:'#f8fafc',t2:'#94a3b8',acc:'#64748b',bdg:'#475569'},ocean:{bg:'linear-gradient(135deg,#083344,#0e7490)',t1:'#e0f2fe',t2:'#bae6fd',acc:'#22d3ee',bdg:'#0891b2'},neon:{bg:'linear-gradient(135deg,#1c0533,#6d28d9)',t1:'#faf5ff',t2:'#e9d5ff',acc:'#c084fc',bdg:'#7c3aed'},amber:{bg:'linear-gradient(135deg,#78350f,#b45309)',t1:'#fef3c7',t2:'#fde68a',acc:'#fbbf24',bdg:'#d97706'},interblue:{bg:'linear-gradient(135deg,#002060,#003399)',t1:'#ffffff',t2:'#bfdbfe',acc:'#60a5fa',bdg:'#1d4ed8'},rossonero:{bg:'linear-gradient(135deg,#7f1d1d,#1c0000)',t1:'#fee2e2',t2:'#fca5a5',acc:'#ef4444',bdg:'#dc2626'},bianconero:{bg:'linear-gradient(135deg,#1a1a1a,#333)',t1:'#ffffff',t2:'rgba(255,255,255,.75)',acc:'#fbbf24',bdg:'#525252'},action:{bg:'linear-gradient(45deg,#1a1a2e,#e63946)',t1:'#ffffff',t2:'#fca5a5',acc:'#f43f5e',bdg:'#e63946'},matrix:{bg:'linear-gradient(135deg,#0a0a0a,#1a3a1a)',t1:'#4ade80',t2:'#86efac',acc:'#22c55e',bdg:'#16a34a'},space:{bg:'linear-gradient(135deg,#0f0a1e,#2d1654)',t1:'#c4b5fd',t2:'rgba(196,181,253,.7)',acc:'#8b5cf6',bdg:'#7c3aed'},blood:{bg:'linear-gradient(135deg,#1a0000,#4a0000)',t1:'#fee2e2',t2:'#fca5a5',acc:'#dc2626',bdg:'#991b1b'},bronze:{bg:'linear-gradient(135deg,#3b1f0c,#7c4003)',t1:'#fef3c7',t2:'#fde68a',acc:'#f59e0b',bdg:'#b45309'},azzurro:{bg:'linear-gradient(135deg,#003366,#b8860b)',t1:'#ffffff',t2:'#fde68a',acc:'#f5c518',bdg:'#b8860b'},mint:{bg:'linear-gradient(135deg,#f0fdf4,#dcfce7)',t1:'#14532d',t2:'#166534',acc:'#16a34a',bdg:'#15803d'},sunset:{bg:'linear-gradient(135deg,#ff6b6b,#feca57)',t1:'#1a1a1a',t2:'#374151',acc:'#f59e0b',bdg:'#d97706'},cosmic:{bg:'linear-gradient(135deg,#141414,#2d1b69)',t1:'#e9d5ff',t2:'#c4b5fd',acc:'#a78bfa',bdg:'#7c3aed'},napoli:{bg:'linear-gradient(135deg,#007bcc,#00509e)',t1:'#ffffff',t2:'#bfdbfe',acc:'#38bdf8',bdg:'#0284c7'},goldblack:{bg:'linear-gradient(135deg,#0d0d0d,#1a1a00)',t1:'#f5c518',t2:'#eab308',acc:'#fbbf24',bdg:'#d97706'}};
+const TDOT_COLORS={white:'#ffffff',lightgray:'#e5e7eb',night:'#16213e',gold:'#b8860b',purple:'#302b63',fire:'#ea580c',forest:'#065f46',navy:'#1e3a8a',bordeaux:'#991b1b',rose:'#fce7f3',teal:'#0d9488',indigo:'#4338ca',carbon:'#1a1a1a',ocean:'#0e7490',neon:'#6d28d9',amber:'#b45309',interblue:'#003399',rossonero:'#7f1d1d',bianconero:'#333333',action:'#e63946',matrix:'#1a3a1a',space:'#2d1654',blood:'#4a0000',bronze:'#7c4003',azzurro:'#003366',mint:'#dcfce7',sunset:'#feca57',cosmic:'#2d1b69',napoli:'#007bcc',goldblack:'#b8860b'};
+(function(){
+  const c=document.getElementById('themeDots');let first=true;
+  Object.entries(TDOT_COLORS).forEach(([name,color])=>{
+    const d=document.createElement('div');d.className='tdot'+(first?' on':'');
+    d.style.background=color;d.title=name;
+    if(['white','lightgray','rose','mint','sunset'].includes(name)) d.style.border='2px solid #d1d5db';
+    d.onclick=()=>{document.querySelectorAll('.tdot').forEach(x=>x.classList.remove('on'));d.classList.add('on');applyTheme(name);};
+    c.appendChild(d);first=false;
+  });
+})();
+window.applyTheme=function(name){
+  const t=THEMES[name];if(!t)return;
+  document.getElementById('cardWrapper').style.background=t.bg;
+  document.getElementById('cardTitle').style.color=t.t1;
+  document.getElementById('cardBodyText').style.color=t.t2;
+  document.getElementById('cardDate').style.color=t.t1;
+  document.getElementById('cardTag').style.color=t.t2;
+  document.getElementById('cardTime').style.background=t.bdg||t.acc;
+  document.getElementById('cardTime').style.color='#fff';
+  document.getElementById('cardHeader').style.borderBottomColor=t.acc;
+  document.getElementById('cardFooter').style.borderTopColor=t.acc;
+  document.getElementById('cardAccentLine').style.background=`linear-gradient(90deg,${t.acc},${t.bdg||t.acc})`;
+};
+
+/* ══ SLIDERS ══ */
+window.adj=function(id,delta,elId){
+  const sl=document.getElementById(id);if(!sl)return;
+  const nv=Math.max(+sl.min,Math.min(+sl.max,+sl.value+delta));
+  sl.value=nv;
+  const svId=id.replace('sl-','sv-');
+  const sv=document.getElementById(svId);if(sv)sv.textContent=nv;
+  if(elId){const el=document.getElementById(elId);if(el)el.style.fontSize=nv+'px';}
+};
+window.applyFsz=function(elId,slider){
+  const v=slider.value;
+  document.getElementById(elId).style.fontSize=v+'px';
+  const svId=slider.id.replace('sl-','sv-');
+  const sv=document.getElementById(svId);if(sv)sv.textContent=v;
+};
+window.applyFszEx=function(elId,v){const el=document.getElementById(elId);if(el)el.style.fontSize=v+'px';};
+window.adjLogo=function(d){const sl=document.getElementById('sl-lg');const nv=Math.max(+sl.min,Math.min(+sl.max,+sl.value+d));sl.value=nv;resizeLogo(nv);};
+window.resizeLogo=function(v){const w=document.getElementById('logoWrapper');w.style.width=v+'px';w.style.height=v+'px';const img=document.getElementById('teamLogo');img.style.maxWidth=(v-10)+'px';img.style.maxHeight=(v-10)+'px';document.getElementById('sv-lg').textContent=v;};
+let ringW=3;
+window.adjRing=function(d){ringW=Math.max(0,Math.min(12,ringW+d));document.getElementById('logoBgCircle').style.borderWidth=ringW+'px';document.getElementById('sv-ring').textContent=ringW;};
+window.adjAL=function(d){const sl=document.getElementById('sl-al');const nv=Math.max(+sl.min,Math.min(+sl.max,+sl.value+d));sl.value=nv;document.getElementById('cardAccentLine').style.height=nv+'px';document.getElementById('sv-al').textContent=nv;};
+window.adjTexOp=function(d){const sl=document.getElementById('sl-to');const nv=Math.max(0,Math.min(100,+sl.value+d));sl.value=nv;document.getElementById('texBg').style.opacity=nv/100;document.getElementById('sv-to').textContent=nv;};
+window.adjVig=function(d){const sl=document.getElementById('sl-vi');const nv=Math.max(0,Math.min(100,+sl.value+d));sl.value=nv;setVignette(nv);document.getElementById('sv-vi').textContent=nv;};
+
+/* ══ PARSE ══ */
+document.getElementById('parseBtn').addEventListener('click',()=>parseAndShow(document.getElementById('rawData').value));
+function parseAndShow(raw){
+  if(!raw.trim()){alert('Incolla del testo prima.');return;}
+  const JUNK=[/https?:\/\/\S+/g,/continua su:/gi,/leggi su:/gi,/fanpage\.it/gi,/gazzetta\.it/gi,/tuttomercato/gi,/calciomercato\.com/gi,/corriere\.it/gi,/skysport/gi,/rcs media/gi,/copyright/gi,/cookie policy/gi,/privacy policy/gi,/newsletter/gi,/iscriviti/gi,/abbonati/gi,/condividi/gi,/commenti/gi,/redazione/gi];
+  let cleaned=raw;JUNK.forEach(rx=>{cleaned=cleaned.replace(rx,'');});
+  const lines=cleaned.split(/\r?\n/).map(l=>l.trim()).filter(l=>l.length>3&&l.length<500);
+  const timeRx=/^(\d{1,2}[:.h']\d{2}|\d{1,2}'\s*(min)?|LIVE|DIRETTA|UFFICIALE|BREAKING)$/i;
+  news=[];let cur=null;
+  for(const l of lines){
+    if(timeRx.test(l.trim())){if(cur&&cur.title)news.push(cur);cur={time:l.trim().replace(/[.h]/g,':').toUpperCase(),title:'',body:''};}
+    else if(cur){if(!cur.title&&l.length>4)cur.title=l.toUpperCase();else if(l.length>8)cur.body+=(cur.body?' ':'')+l;}
+  }
+  if(cur&&cur.title)news.push(cur);
+  news.forEach(n=>{n.logo=null;for(const[team,url]of Object.entries(allLogos)){if(n.title.toLowerCase().includes(team.toLowerCase())||(n.body&&n.body.toLowerCase().includes(team.toLowerCase()))){n.logo=url;n.team=team;break;}}if(!n.body)n.body='Aggiornamenti in tempo reale.';});
+  if(news.length){idx=0;document.getElementById('navSection').style.display='flex';renderCard();}
+  else alert('Nessuna notizia trovata. Ogni notizia deve iniziare con un orario tipo: 18:30');
+}
+
+/* ══ URL FETCH ══ */
+const PROXIES=[u=>({url:`https://corsproxy.io/?${encodeURIComponent(u)}`,parse:r=>r.text()}),u=>({url:`https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,parse:async r=>{const d=await r.json();return d.contents||'';}}),u=>({url:`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,parse:r=>r.text()})];
+window.fetchUrl=async function(){
+  const rawUrl=document.getElementById('urlInput').value.trim();if(!rawUrl){alert('Inserisci un URL.');return;}
+  const btn=document.getElementById('urlBtn'),st=document.getElementById('urlStatus');
+  btn.textContent='⏳ Connessione…';btn.disabled=true;st.style.color='#64748b';
+  for(let i=0;i<PROXIES.length;i++){
+    const p=PROXIES[i](rawUrl);st.textContent=`Tentativo ${i+1}/3…`;
+    try{const r=await fetch(p.url,{signal:AbortSignal.timeout(12000)});if(!r.ok)throw new Error('HTTP '+r.status);
+      const html=await p.parse(r);if(!html||html.length<100)throw new Error('Vuoto');
+      const extracted=extractNewsFromHtml(html,rawUrl);
+      if(extracted.length>30){document.getElementById('rawData').value=extracted;st.textContent='✅ Estratte notizie! Ora premi ⚡ GENERA CARD';st.style.color='#16a34a';btn.textContent='🌐 LEGGI DA SITO';btn.disabled=false;return;}
+      else throw new Error('Poche notizie');
+    }catch(e){if(i===PROXIES.length-1){st.textContent='⚠️ Impossibile leggere. Copia il testo manualmente.';st.style.color='#dc2626';}}
+  }
+  btn.textContent='🌐 LEGGI DA SITO';btn.disabled=false;
+};
+function extractNewsFromHtml(html){
+  const doc=new DOMParser().parseFromString(html,'text/html');
+  'script,style,nav,footer,header,aside'.split(',').forEach(s=>{doc.querySelectorAll(s).forEach(e=>e.remove());});
+  const main=doc.querySelector('article,main,[class*="article-body"],[class*="post-content"],[class*="story-body"]');
+  return main?(main.innerText||main.textContent||''):(doc.body.innerText||doc.body.textContent||'');
+}
+
+function renderCard(){
+  if(!news.length)return;
+  const n=news[idx];
+  document.getElementById('cardTime').textContent=n.time;
+  document.getElementById('cardTitle').textContent=n.title;
+  document.getElementById('cardBodyText').textContent=n.body;
+  const lw=document.getElementById('logoWrapper');
+  if(n.logo){document.getElementById('teamLogo').src=n.logo;lw.style.display='flex';}
+  else{lw.style.display='none';}
+  document.getElementById('ci').textContent=idx+1;
+  document.getElementById('ct').textContent=news.length;
+  document.getElementById('prevBtn').disabled=idx===0;
+  document.getElementById('nextBtn').disabled=idx===news.length-1;
+  document.getElementById('extraBoxesArea').innerHTML='';
+}
+window.goNav=function(d){idx=Math.max(0,Math.min(news.length-1,idx+d));renderCard();};
+
+/* ══ TEXT OPS ══ */
+window.editEl=function(id){
+  const el=document.getElementById(id),was=el.contentEditable==='true';
+  document.querySelectorAll('[contenteditable="true"]').forEach(e=>e.contentEditable='false');
+  if(!was){el.contentEditable='true';el.focus();try{const r=document.createRange();r.selectNodeContents(el);r.collapse(false);const s=getSelection();s.removeAllRanges();s.addRange(r);}catch{}}
+};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('[contenteditable="true"]').forEach(el=>el.contentEditable='false');deselectFt();}});
+window.tgBold=function(id){const el=document.getElementById(id);el.style.fontWeight=(el.style.fontWeight==='900')?'400':'900';};
+window.tgItalic=function(id){const el=document.getElementById(id);el.style.fontStyle=(el.style.fontStyle==='italic')?'normal':'italic';};
+window.tgUppercase=function(id){const el=document.getElementById(id);const on=el.style.textTransform==='uppercase';el.style.textTransform=on?'none':'uppercase';const b=document.getElementById('uc-'+id);if(b)b.classList.toggle('on',!on);};
+window.alignEl=(id,a)=>document.getElementById(id).style.textAlign=a;
+window.colorEl=(id,c)=>document.getElementById(id).style.color=c;
+window.setVis=(id,v)=>document.getElementById(id).style.display=v;
+window.applyFont=function(f){['cardTime','cardTitle','cardBodyText','cardTag','cardDate','mainTitleEl','bannerText'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.fontFamily=`'${f}',sans-serif`;});};
+window.removeLogo=()=>document.getElementById('logoWrapper').style.display='none';
+
+/* ══ BG LOGO ══ */
+window.setBgLogoFromLogo=function(){
+  const src=document.getElementById('teamLogo').src;
+  if(!src||src.endsWith('/')){alert('Prima scegli un logo club.');return;}
+  document.getElementById('bgLogoImg').src=src;
+  document.getElementById('bgLogoLayer').style.display='flex';
+};
+window.removeBgLogo=function(){
+  document.getElementById('bgLogoLayer').style.display='none';
+  document.getElementById('bgLogoImg').src='';
+};
+window.setBgLogoOp=function(v){document.getElementById('bgLogoImg').style.opacity=v/100;};
+window.setBgLogoBlur=function(v){document.getElementById('bgLogoImg').style.filter=`blur(${v}px)`;};
+window.setBgLogoSize=function(v){document.getElementById('bgLogoImg').style.width=v+'%';document.getElementById('bgLogoImg').style.height=v+'%';};
+window.adjBgLogo=function(type,d){
+  if(type==='op'){const sl=document.getElementById('sl-bgop');const nv=Math.max(0,Math.min(100,+sl.value+d));sl.value=nv;setBgLogoOp(nv);document.getElementById('sv-bgop').textContent=nv;}
+  else if(type==='blur'){const sl=document.getElementById('sl-bgbl');const nv=Math.max(0,Math.min(40,+sl.value+d));sl.value=nv;setBgLogoBlur(nv);document.getElementById('sv-bgbl').textContent=nv;}
+  else if(type==='size'){const sl=document.getElementById('sl-bgsc');const nv=Math.max(20,Math.min(150,+sl.value+d));sl.value=nv;setBgLogoSize(nv);document.getElementById('sv-bgsc').textContent=nv;}
+};
+
+/* ══ LOGO PICKER ══ */
+function buildPickerIn(containerId, onSelect){
+  const picker=document.getElementById(containerId);picker.innerHTML='';
+  const none=document.createElement('div');none.className='lpi';
+  none.innerHTML=`<div style="width:32px;height:32px;background:#f1f5f9;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:16px">✕</div><span>Nessuno</span>`;
+  none.onclick=()=>onSelect(null,null);picker.appendChild(none);
+  Object.entries(allLogos).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([name,url])=>{
+    const i=document.createElement('div');i.className='lpi';
+    i.innerHTML=`<img src="${url}" onerror="this.src=''" crossorigin="anonymous"><span>${name}</span>`;
+    i.onclick=()=>onSelect(url,name);
+    picker.appendChild(i);
+  });
+}
+window.openLogoPicker=async function(){
+  await loadFb();
+  buildPickerIn('logoPicker',(url,name)=>{
+    if(!url){window.removeLogo();closeLp();return;}
+    document.getElementById('teamLogo').src=url;
+    document.getElementById('logoWrapper').style.display='flex';
+    if(idx<news.length){news[idx].logo=url;news[idx].team=name;}
+    closeLp();
+  });
+  document.getElementById('lpModal').style.display='flex';
+};
+window.closeLp=()=>document.getElementById('lpModal').style.display='none';
+window.openBgLogoPicker=async function(){
+  await loadFb();
+  buildPickerIn('bgLogoPicker',(url)=>{
+    if(!url){window.removeBgLogo();closeBgLp();return;}
+    document.getElementById('bgLogoImg').src=url;
+    document.getElementById('bgLogoLayer').style.display='flex';
+    closeBgLp();
+  });
+  document.getElementById('bgLpModal').style.display='flex';
+};
+window.closeBgLp=()=>document.getElementById('bgLpModal').style.display='none';
+
+/* ══ EXTRA BOXES ══ */
+const BSTYLE={highlight:{bg:'rgba(253,224,71,.2)',border:'1px solid rgba(253,224,71,.5)',color:'#713f12',text:'⚡ Testo highlight'},quote:{bg:'rgba(16,185,129,.12)',border:'1px solid rgba(16,185,129,.4)',color:'#065f46',text:'💬 Citazione'},stat:{bg:'rgba(59,130,246,.12)',border:'1px solid rgba(59,130,246,.4)',color:'#1e3a8a',text:'📊 Stat: 0–0'},tag:{bg:'rgba(139,92,246,.12)',border:'1px solid rgba(139,92,246,.4)',color:'#4c1d95',text:'🏷 Label'},alert:{bg:'rgba(239,68,68,.15)',border:'1px solid rgba(239,68,68,.4)',color:'#7f1d1d',text:'🚨 BREAKING NEWS'},dark:{bg:'rgba(0,0,0,.85)',border:'1px solid rgba(255,255,255,.1)',color:'#f1f5f9',text:'⬛ Info'}};
+window.addBox=function(type){
+  const area=document.getElementById('extraBoxesArea'),s=BSTYLE[type];
+  const box=document.createElement('div');box.className='extra-box';box.contentEditable='true';
+  box.style.cssText=`background:${s.bg};border:${s.border};color:${s.color};border-radius:9px;padding:9px 26px 9px 12px;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;outline:none;word-break:break-word;position:relative;`;
+  box.textContent=s.text;
+  const del=document.createElement('span');del.className='xdel';del.textContent='✕';del.contentEditable='false';del.onclick=e=>{e.stopPropagation();area.removeChild(box);};
+  box.appendChild(del);area.appendChild(box);box.focus();
+};
+window.addExtraBox=function(text,styleClass){
+  const area=document.getElementById('extraBoxesArea');
+  const box=document.createElement('div');box.className='extra-box '+styleClass;box.textContent=text;
+  const xDel=document.createElement('span');xDel.className='xdel';xDel.textContent='✕';xDel.onclick=function(){area.removeChild(box);};
+  box.appendChild(xDel);area.appendChild(box);
+};
+
+/* ══ FREE TEXT ══ */
+window.addFreeText=function(){const v=document.getElementById('freeTextInput').value.trim();if(!v)return;addFreeTextVal(v);document.getElementById('freeTextInput').value='';};
+window.addFreeTextVal=function(text){
+  const card=document.getElementById('cardWrapper');
+  const el=document.createElement('div');
+  el.className='free-text-el';
+  el.contentEditable='false';
+  el.textContent=text;
+  el.style.left='50%';el.style.top='50%';el.style.transform='translate(-50%,-50%)';
+  el.style.color='#ffffff';el.style.textShadow='0 2px 8px rgba(0,0,0,.9)';
+  el.style.fontSize='16px';
+  makeFtDraggable(el);
+  el.addEventListener('click',e=>{e.stopPropagation();selectFt(el);});
+  el.addEventListener('dblclick',e=>{e.stopPropagation();el.contentEditable='true';el.focus();});
+  el.addEventListener('blur',()=>{el.contentEditable='false';});
+  card.appendChild(el);
+  selectFt(el);
+};
+function selectFt(el){
+  document.querySelectorAll('.free-text-el').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedFtEl=el;
+  const ctrl=document.getElementById('freeTextControls');
+  ctrl.style.opacity='1';ctrl.style.pointerEvents='auto';
+  document.getElementById('sl-ft').value=parseInt(el.style.fontSize)||16;
+  document.getElementById('sv-ft').textContent=parseInt(el.style.fontSize)||16;
+}
+function deselectFt(){
+  document.querySelectorAll('.free-text-el').forEach(e=>e.classList.remove('selected'));
+  selectedFtEl=null;
+  const ctrl=document.getElementById('freeTextControls');
+  ctrl.style.opacity='0.4';ctrl.style.pointerEvents='none';
+}
+document.getElementById('cardWrapper').addEventListener('click',e=>{if(e.target===document.getElementById('cardWrapper')||!e.target.closest('.free-text-el'))deselectFt();});
+window.setSelectedFtColor=function(c){if(selectedFtEl)selectedFtEl.style.color=c;};
+window.setSelectedFtBg=function(c){if(selectedFtEl)selectedFtEl.style.background=c==='transparent'?'transparent':c;};
+window.tgSelectedFtBold=function(){if(selectedFtEl)selectedFtEl.style.fontWeight=selectedFtEl.style.fontWeight==='900'?'400':'900';};
+window.deleteSelectedFt=function(){if(selectedFtEl){selectedFtEl.remove();deselectFt();}};
+window.setSelectedFtSize=function(v){if(selectedFtEl)selectedFtEl.style.fontSize=v+'px';};
+window.adjSelectedFtSize=function(d){if(!selectedFtEl)return;const sl=document.getElementById('sl-ft');const nv=Math.max(8,Math.min(72,+sl.value+d));sl.value=nv;document.getElementById('sv-ft').textContent=nv;selectedFtEl.style.fontSize=nv+'px';};
+window.setSelectedFtShadow=function(s){if(selectedFtEl)selectedFtEl.style.textShadow=s;};
+function makeFtDraggable(el){
+  let drag=false,ox=0,oy=0,sx=0,sy=0;
+  const getPos=()=>{const card=document.getElementById('cardWrapper').getBoundingClientRect();const er=el.getBoundingClientRect();return{x:er.left-card.left,y:er.top-card.top};};
+  el.addEventListener('mousedown',e=>{if(el.contentEditable==='true')return;e.preventDefault();drag=true;const p=getPos();ox=p.x;oy=p.y;sx=e.clientX;sy=e.clientY;el.style.transform='none';el.style.left=ox+'px';el.style.top=oy+'px';});
+  el.addEventListener('touchstart',e=>{if(el.contentEditable==='true')return;drag=true;const t=e.touches[0];const p=getPos();ox=p.x;oy=p.y;sx=t.clientX;sy=t.clientY;el.style.transform='none';el.style.left=ox+'px';el.style.top=oy+'px';},{passive:true});
+  document.addEventListener('mousemove',e=>{if(!drag)return;el.style.left=Math.max(0,Math.min(340,ox+(e.clientX-sx)))+'px';el.style.top=Math.max(0,Math.min(620,oy+(e.clientY-sy)))+'px';});
+  document.addEventListener('touchmove',e=>{if(!drag)return;const t=e.touches[0];el.style.left=Math.max(0,Math.min(340,ox+(t.clientX-sx)))+'px';el.style.top=Math.max(0,Math.min(620,oy+(t.clientY-sy)))+'px';},{passive:true});
+  document.addEventListener('mouseup',()=>{drag=false;});
+  document.addEventListener('touchend',()=>{drag=false;});
+}
+
+/* ══ TRANSFER ARROWS ══ */
+window.setArrDir=function(d,btn){
+  arrDir=d;
+  document.querySelectorAll('#arrDirR,#arrDirL').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+};
+window.setArrStyle=function(i,btn){
+  arrStyleIdx=i;
+  document.querySelectorAll('#arrStyleBtns .btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+};
+window.setArrColorLive=function(c){arrColor=c;document.getElementById('arrColor').value=c;};
+window.setArrBgLive=function(c){arrBg=c;if(c!=='transparent')document.getElementById('arrBg').value=c;};
+window.setArrSize=function(v){arrSize=+v;};
+window.adjArrSize=function(d){const sl=document.getElementById('sl-as');const nv=Math.max(+sl.min,Math.min(+sl.max,+sl.value+d));sl.value=nv;document.getElementById('sv-as').textContent=nv;setArrSize(nv);};
+window.showArrowArea=function(){
+  const area=document.getElementById('transferArrowsArea');
+  area.style.display='flex';
+  // Reset to a sensible default position if it's the first time
+  if(!area._positioned){area._positioned=true;area.style.left='50%';area.style.top='55%';area.style.transform='translateX(-50%)';}
+};
+window.hideArrowArea=function(){document.getElementById('transferArrowsArea').style.display='none';};
+window.centerArrowArea=function(){
+  const area=document.getElementById('transferArrowsArea');
+  area.style.transform='none';area.style.left='50%';area.style.top='55%';area.style.transform='translateX(-50%)';
+};
+window.centerImgArea=function(){
+  const card=document.getElementById('cardWrapper');
+  const area=document.getElementById('multiImagesArea');
+  area.style.transform='none';
+  area.style.left='0px';
+  const cy=Math.max(0,Math.round((card.clientHeight-area.offsetHeight)/2));
+  area.style.top=cy+'px';
+};
+window.addTransferArrow=function(){
+  showArrowArea();
+  const row=document.getElementById('arrRow');
+  const s=ARR_STYLES[arrStyleIdx];
+  const el=document.createElement('div');
+  el.className='transfer-arrow';
+  el.style.color=arrColor;
+  el.style.background=arrBg==='transparent'?'transparent':arrBg;
+  el.style.fontSize=arrSize+'px';
+  el.style.textShadow=`0 0 12px ${arrColor}`;
+  const text=arrDir==='right'?s.right:s.left;
+  el.textContent=text;
+  const del=document.createElement('div');del.className='arr-del';del.textContent='✕';del.onclick=e=>{e.stopPropagation();row.removeChild(el);};
+  el.appendChild(del);
+  row.appendChild(el);
+};
+
+/* ══ MULTI IMAGES ══ */
+window.setImgLayout=function(layout,btn){
+  const area=document.getElementById('multiImagesArea');
+  area.className='layout-'+layout;
+  document.querySelectorAll('#layoutH,#layoutV').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+};
+window.setMultiImgH=function(v){document.getElementById('imgsRow').style.height=v+'px';};
+window.adjMultiImgH=function(d){const sl=document.getElementById('sl-mih');const nv=Math.max(+sl.min,Math.min(+sl.max,+sl.value+d));sl.value=nv;setMultiImgH(nv);document.getElementById('sv-mih').textContent=nv;};
+window.setMultiImgW=function(v){document.getElementById('multiImagesArea').style.width=v+'px';};
+window.adjMultiImgW=function(d){const sl=document.getElementById('sl-miw');const nv=Math.max(+sl.min,Math.min(+sl.max,+sl.value+d));sl.value=nv;setMultiImgW(nv);document.getElementById('sv-miw').textContent=nv;};
+window.addMultiImgSlot=function(type){
+  if(type==='url'){document.getElementById('urlImgModal').style.display='flex';document.getElementById('urlImgInput').value='';return;}
+  const inp=document.createElement('input');inp.type='file';inp.accept='image/*';
+  inp.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>createMultiImgSlot(ev.target.result);r.readAsDataURL(f);};
+  inp.click();
+};
+window.confirmUrlImg=function(){
+  const url=document.getElementById('urlImgInput').value.trim();
+  if(!url)return;
+  createMultiImgSlot(url);
+  document.getElementById('urlImgModal').style.display='none';
+};
+function createMultiImgSlot(src){
+  const area=document.getElementById('multiImagesArea');
+  const row=document.getElementById('imgsRow');
+  area.style.display='flex';
+  const wrap=document.createElement('div');wrap.className='multi-img-wrap';
+  const img=document.createElement('img');img.src=src;img.crossOrigin='anonymous';
+  const del=document.createElement('button');del.className='img-del';del.textContent='✕';
+  del.onclick=()=>{row.removeChild(wrap);if(row.children.length===0)area.style.display='none';};
+  wrap.appendChild(img);wrap.appendChild(del);
+  row.appendChild(wrap);
+}
+window.clearAllMultiImgs=function(){
+  const area=document.getElementById('multiImagesArea');
+  document.getElementById('imgsRow').innerHTML='';
+  area.style.display='none';
+};
+
+/* ══ DRAGGABLE FLOAT CONTAINERS (arrows + images) ══ */
+function makeContainerDraggable(containerId, handleId){
+  const area=document.getElementById(containerId);
+  const handle=document.getElementById(handleId);
+  if(!area||!handle)return;
+  let drag=false,ox=0,oy=0,sx=0,sy=0;
+  function startDrag(cx,cy){
+    drag=true;
+    area.style.transform='none';
+    const r=document.getElementById('cardWrapper').getBoundingClientRect();
+    const ar=area.getBoundingClientRect();
+    ox=ar.left-r.left; oy=ar.top-r.top;
+    sx=cx; sy=cy;
+  }
+  function moveDrag(cx,cy){
+    if(!drag)return;
+    const card=document.getElementById('cardWrapper');
+    // Clamp so at least 20px of the container remains visible inside the card
+    const maxX=Math.max(0, card.clientWidth-area.offsetWidth);
+    const maxY=Math.max(0, card.clientHeight-area.offsetHeight);
+    area.style.left=Math.max(0,Math.min(maxX,ox+(cx-sx)))+'px';
+    area.style.top=Math.max(0,Math.min(maxY,oy+(cy-sy)))+'px';
+  }
+  handle.addEventListener('mousedown',e=>{e.preventDefault();startDrag(e.clientX,e.clientY);});
+  handle.addEventListener('touchstart',e=>{const t=e.touches[0];startDrag(t.clientX,t.clientY);},{passive:true});
+  document.addEventListener('mousemove',e=>{moveDrag(e.clientX,e.clientY);});
+  document.addEventListener('touchmove',e=>{if(!drag)return;const t=e.touches[0];moveDrag(t.clientX,t.clientY);},{passive:true});
+  document.addEventListener('mouseup',()=>{drag=false;});
+  document.addEventListener('touchend',()=>{drag=false;});
+}
+makeContainerDraggable('transferArrowsArea','arrHandle');
+makeContainerDraggable('multiImagesArea','imgHandle');
+
+/* ══ HIDE HEADER / KEEP FICUP LOGO ══ */
+window.hideHeaderKeepLogo=function(){
+  const header=document.getElementById('cardHeader');
+  const time=document.getElementById('cardTime');
+  if(time) time.style.display='none';
+  header.style.padding='6px 14px';
+  header.style.justifyContent='flex-end';
+};
+window.restoreHeader=function(){
+  const header=document.getElementById('cardHeader');
+  const time=document.getElementById('cardTime');
+  if(time) time.style.display='';
+  header.style.padding='';
+  header.style.justifyContent='';
+  header.style.display='flex';
+};
+
+/* ══ LOGO RELIEF / EMBOSS EFFECTS ══ */
+let currentLogoRelief='none';
+let logoReliefIntensity=1;
+const LOGO_RELIEFS={
+  'none':           ()=>'none',
+  'emboss-light':   (i)=>`drop-shadow(${i*1}px ${i*1}px 0 rgba(255,255,255,.9)) drop-shadow(${i*-1}px ${i*-1}px 0 rgba(0,0,0,.4)) brightness(${1+i*0.15}) contrast(${1+i*0.2})`,
+  'emboss-dark':    (i)=>`drop-shadow(${i*2}px ${i*2}px 0 rgba(0,0,0,.8)) drop-shadow(${i*-1}px ${i*-1}px 0 rgba(255,255,255,.3)) brightness(${1-i*0.1}) contrast(${1+i*0.3})`,
+  'glow-white':     (i)=>`drop-shadow(0 0 ${i*8}px rgba(255,255,255,${Math.min(1,i*0.9)})) drop-shadow(0 0 ${i*16}px rgba(255,255,255,${Math.min(1,i*0.5)})) brightness(${1+i*0.2})`,
+  'glow-gold':      (i)=>`drop-shadow(0 0 ${i*8}px rgba(251,191,36,${Math.min(1,i*0.9)})) drop-shadow(0 0 ${i*20}px rgba(245,158,11,${Math.min(1,i*0.6)})) brightness(${1+i*0.15}) saturate(${1+i*0.5})`,
+  'metal':          (i)=>`brightness(${1+i*0.3}) contrast(${1+i*0.4}) saturate(${Math.max(0,1-i*0.6)}) drop-shadow(${i*1}px ${i*2}px ${i*4}px rgba(0,0,0,.6)) drop-shadow(${i*-1}px ${i*-1}px ${i*2}px rgba(255,255,255,.4))`,
+  'neon-blue':      (i)=>`drop-shadow(0 0 ${i*6}px rgba(59,130,246,${Math.min(1,i*0.9)})) drop-shadow(0 0 ${i*14}px rgba(99,102,241,${Math.min(1,i*0.7)})) drop-shadow(0 0 ${i*24}px rgba(139,92,246,${Math.min(1,i*0.4)})) brightness(${1+i*0.1})`,
+  'shadow-3d':      (i)=>`drop-shadow(${i*3}px ${i*3}px 0 rgba(0,0,0,.5)) drop-shadow(${i*5}px ${i*5}px 0 rgba(0,0,0,.3)) drop-shadow(${i*8}px ${i*8}px ${i*4}px rgba(0,0,0,.2))`,
+};
+let _reliefBtns=[];
+window.setLogoRelief=function(type,btn){
+  currentLogoRelief=type;
+  logoReliefIntensity=+document.getElementById('sl-lri').value||1;
+  applyLogoRelief();
+  // toggle button style
+  document.querySelectorAll('[onclick*="setLogoRelief"]').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+};
+window.adjLogoReliefInt=function(delta,absVal){
+  const sl=document.getElementById('sl-lri');
+  if(absVal!==undefined){logoReliefIntensity=absVal;}
+  else{logoReliefIntensity=Math.max(0.1,Math.min(3,logoReliefIntensity+delta));sl.value=logoReliefIntensity;document.getElementById('sv-lri').textContent=Math.round(logoReliefIntensity*100)+'%';}
+  applyLogoRelief();
+};
+function applyLogoRelief(){
+  const logo=document.getElementById('teamLogo');
+  if(!logo)return;
+  const fn=LOGO_RELIEFS[currentLogoRelief];
+  const filterVal=fn?fn(logoReliefIntensity):'none';
+  logo.style.filter=filterVal;
+  // Also apply to logoWrapper for badge circle glow
+  const wrap=document.getElementById('logoWrapper');
+  if(wrap&&currentLogoRelief!=='none'){
+    const glows={'glow-white':'0 0 20px rgba(255,255,255,.4)','glow-gold':'0 0 20px rgba(251,191,36,.5)','neon-blue':'0 0 20px rgba(59,130,246,.5)','metal':'2px 4px 12px rgba(0,0,0,.5)'};
+    wrap.style.boxShadow=glows[currentLogoRelief]||'none';
+  }else if(wrap){wrap.style.boxShadow='';}
+}
+
+/* ══ SINGLE IMAGE ══ */
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('imageUpload').addEventListener('change',function(e){
+    const f=e.target.files[0];if(!f)return;
+    const r=new FileReader();r.onload=ev=>{document.getElementById('customImage').src=ev.target.result;document.getElementById('customImageWrapper').style.display='block';};
+    r.readAsDataURL(f);
+  });
+  document.getElementById('removeBtn').addEventListener('click',removeCustomImage);
+  document.getElementById('loadImageBtn').addEventListener('click',()=>{
+    const url=document.getElementById('imageUrl').value.trim();if(!url)return;
+    document.getElementById('customImage').src=url;document.getElementById('customImageWrapper').style.display='block';
+  });
+});
+function removeCustomImage(){
+  document.getElementById('customImage').src='';document.getElementById('customImageWrapper').style.display='none';
+  document.getElementById('imageUrl').value='';document.getElementById('imageUpload').value='';
+}
+
+/* ══ FRAME ══ */
+window.setFrameColor=function(c){document.getElementById('cardFrameEl').style.borderColor=c;};
+window.setFrameStyle=function(s){document.getElementById('cardFrameEl').style.borderStyle=s;};
+window.setFrameW=function(v){document.getElementById('cardFrameEl').style.borderWidth=v+'px';};
+window.setFrameR=function(v){
+  document.getElementById('cardFrameEl').style.borderRadius=v+'px';
+  document.getElementById('cardWrapper').style.borderRadius=v+'px';
+};
+window.adjFrame=function(type,d){
+  if(type==='w'){const sl=document.getElementById('sl-fw');const nv=Math.max(0,Math.min(20,+sl.value+d));sl.value=nv;setFrameW(nv);document.getElementById('sv-fw').textContent=nv;}
+  else if(type==='r'){const sl=document.getElementById('sl-fr');const nv=Math.max(0,Math.min(40,+sl.value+d));sl.value=nv;setFrameR(nv);document.getElementById('sv-fr').textContent=nv;}
+};
+const GLOW_CLASSES=['frame-glow-blue','frame-glow-gold','frame-glow-red','frame-glow-green','frame-glow-purple'];
+window.setFrameGlow=function(color){
+  const el=document.getElementById('cardFrameEl');
+  GLOW_CLASSES.forEach(c=>el.classList.remove(c));
+  if(color!=='none')el.classList.add('frame-glow-'+color);
+};
+
+/* ══ DESIGN ══ */
+window.adjPad=function(id,d){const el=document.getElementById(id);const c=parseInt(getComputedStyle(el).paddingTop)||14;el.style.padding=Math.max(4,c+d)+'px 18px';};
+window.setBW=function(w){document.getElementById('cardHeader').style.borderBottomWidth=w+'px';document.getElementById('cardFooter').style.borderTopWidth=w+'px';};
+window.setBS=function(s){document.getElementById('cardHeader').style.borderBottomStyle=s;document.getElementById('cardFooter').style.borderTopStyle=s;};
+window.setAccent=function(c){document.getElementById('cardHeader').style.borderBottomColor=c;document.getElementById('cardFooter').style.borderTopColor=c;document.getElementById('cardAccentLine').style.background=c;};
+window.setAccentGrad=function(){const c1=document.getElementById('alc1').value,c2=document.getElementById('alc2').value;document.getElementById('cardAccentLine').style.background=`linear-gradient(90deg,${c1},${c2})`;};
+window.applyGrad=function(){const c1=document.getElementById('gc1').value,c2=document.getElementById('gc2').value,d=document.getElementById('gdir').value;document.getElementById('cardWrapper').style.background=`linear-gradient(${d},${c1},${c2})`;};
+
+/* ══ TEXTURE ══ */
+window.setTex=function(cls,btn){
+  const tb=document.getElementById('texBg');texCls.forEach(c=>tb.classList.remove(c));
+  if(cls)tb.classList.add(cls);
+  document.querySelectorAll('.txi').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+};
+
+/* ══ FILTERS ══ */
+window.setCF=function(prop,val,unit,svId){
+  cssF[prop]=val;document.getElementById(svId).textContent=val;
+  document.getElementById('cardWrapper').style.filter=`brightness(${cssF.brightness}%) contrast(${cssF.contrast}%) saturate(${cssF.saturate}%) sepia(${cssF.sepia}%) hue-rotate(${cssF['hue-rotate']}deg)`;
+};
+window.adjCF=function(prop,slId,delta){
+  const sl=document.getElementById(slId);const nv=Math.max(+sl.min,Math.min(+sl.max,+sl.value+delta));
+  sl.value=nv;const svId=slId.replace('sl-','sv-');setCF(prop,nv,'',svId);
+};
+window.resetFilters=function(){
+  Object.assign(cssF,{brightness:100,contrast:100,saturate:100,sepia:0,'hue-rotate':0});
+  document.getElementById('cardWrapper').style.filter='';
+  [['sl-br','sv-br',100],['sl-co','sv-co',100],['sl-sa','sv-sa',100],['sl-se','sv-se',0],['sl-hu','sv-hu',0]].forEach(([s,v,d])=>{
+    const sl=document.getElementById(s);if(sl)sl.value=d;const sv=document.getElementById(v);if(sv)sv.textContent=d;
+  });
+};
+
+/* ══ VIGNETTE ══ */
+window.setVignette=function(v){
+  const vig=document.getElementById('vigBg');document.getElementById('sv-vi').textContent=v;
+  vig.style.background=v>0?`radial-gradient(ellipse at 50% 50%,transparent ${Math.max(10,100-v)}%,rgba(0,0,0,.85) 100%)`:'';
+};
+
+/* ══ PRESETS ══ */
+const PRESETS={cinema:{theme:'carbon',tex:'tx-grain',br:90,co:130,sa:70,se:15,hu:0},vintage:{theme:'amber',tex:'tx-vintage',br:95,co:110,sa:60,se:30,hu:5},neon:{theme:'neon',tex:'tx-bokeh',br:110,co:130,sa:200,se:0,hu:0},sport:{theme:'navy',tex:'tx-blueprint',br:105,co:125,sa:150,se:0,hu:0},breaking:{theme:'blood',tex:'tx-plaid',br:105,co:140,sa:110,se:0,hu:0},dramatic:{theme:'carbon',tex:'tx-carbon',br:80,co:160,sa:120,se:0,hu:0},clean:{theme:'white',tex:'',br:100,co:100,sa:100,se:0,hu:0}};
+window.applyPreset=function(name){
+  const p=PRESETS[name];if(!p)return;applyTheme(p.theme);
+  const btn=document.getElementById('txb-'+p.tex)||{classList:{add(){},remove(){}}};setTex(p.tex,btn);
+  Object.assign(cssF,{brightness:p.br,contrast:p.co,saturate:p.sa,sepia:p.se,'hue-rotate':p.hu});
+  document.getElementById('cardWrapper').style.filter=`brightness(${p.br}%) contrast(${p.co}%) saturate(${p.sa}%) sepia(${p.se}%) hue-rotate(${p.hu}deg)`;
+};
+window.resetAll=function(){applyTheme('white');setTex('',{classList:{add(){},remove(){}}});resetFilters();document.getElementById('vigBg').style.background='';};
+
+/* ══ LAYERS ══ */
+const LAYER_IDS=['cardAccentLine','cardBanner','cardHeader','cardBodySection','extraBoxesArea','cardFooter'];
+const LAYER_NAMES={cardAccentLine:'➖ Accent Line',cardBanner:'📣 Banner',cardHeader:'⏱ Header',cardBodySection:'📝 Corpo',extraBoxesArea:'📦 Box Extra',cardFooter:'📅 Footer'};
+const SKIP_IDS=new Set(['bgLogoLayer','texBg','vigBg','cardFrameEl','mainTitleEl']);
+function buildLayerList(){
+  const list=document.getElementById('layerList');list.innerHTML='';
+  const card=document.getElementById('cardWrapper');
+  const children=Array.from(card.children).filter(el=>!SKIP_IDS.has(el.id)&&el.id&&LAYER_NAMES[el.id]);
+  children.forEach(el=>{
+    const vis=el.style.display!=='none';
+    const row=document.createElement('div');row.className='lrow';
+    row.innerHTML=`<span class="leye" onclick="tgLayerVis('${el.id}',this)">${vis?'👁':'🙈'}</span><span class="lname">${LAYER_NAMES[el.id]||el.id}</span><div class="lbtns"><button onclick="mvLayer('${el.id}',-1)" title="Sposta sopra">↑</button><button onclick="mvLayer('${el.id}',1)" title="Sposta sotto">↓</button></div>`;
+    list.appendChild(row);
+  });
+}
+window.tgLayerVis=function(id,eye){const el=document.getElementById(id);if(!el)return;const h=el.style.display==='none';el.style.display=h?'':'none';eye.textContent=h?'👁':'🙈';};
+window.mvLayer=function(id,dir){
+  const el=document.getElementById(id);if(!el)return;
+  const parent=document.getElementById('cardWrapper');
+  const siblings=Array.from(parent.children).filter(c=>!SKIP_IDS.has(c.id));
+  const i=siblings.indexOf(el);
+  if(dir<0&&i>0){parent.insertBefore(el,siblings[i-1]);}
+  else if(dir>0&&i<siblings.length-1){const after=siblings[i+1];if(after.nextSibling)parent.insertBefore(el,after.nextSibling);else parent.appendChild(el);}
+  buildLayerList();
+};
+buildLayerList();
+
+/* ══ DRAGGABLE MAIN TITLE ══ */
+(()=>{
+  const el=document.getElementById('mainTitleEl'),card=document.getElementById('cardWrapper');
+  let drag=false,ox=0,oy=0,sx=0,sy=0;
+  const start=(cx,cy)=>{if(el.contentEditable==='true')return;drag=true;const r=card.getBoundingClientRect(),er=el.getBoundingClientRect();ox=er.left-r.left;oy=er.top-r.top;sx=cx;sy=cy;el.style.transform='none';el.style.left=ox+'px';el.style.top=oy+'px';};
+  el.addEventListener('mousedown',e=>start(e.clientX,e.clientY));
+  el.addEventListener('touchstart',e=>{const t=e.touches[0];start(t.clientX,t.clientY);},{passive:true});
+  document.addEventListener('mousemove',e=>{if(!drag)return;el.style.left=Math.max(0,Math.min(310,ox+(e.clientX-sx)))+'px';el.style.top=Math.max(0,Math.min(600,oy+(e.clientY-sy)))+'px';});
+  document.addEventListener('touchmove',e=>{if(!drag)return;const t=e.touches[0];el.style.left=Math.max(0,Math.min(310,ox+(t.clientX-sx)))+'px';el.style.top=Math.max(0,Math.min(600,oy+(t.clientY-sy)))+'px';},{passive:true});
+  document.addEventListener('mouseup',()=>{drag=false;});
+  document.addEventListener('touchend',()=>{drag=false;});
+})();
+
+/* ══ EXPORT PNG — ottimizzato per immagini verticali ══ */
+async function toDataUrl(src) {
+  return new Promise((resolve) => {
+    if (!src || src.startsWith('data:')) {
+      resolve(src || '');
+      return;
+    }
+
+    // Per immagini locali del telefono (content://)
+    if (src.startsWith('content://')) {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth || 900;
+        canvas.height = img.naturalHeight || 900;
+        try {
+          canvas.getContext('2d').drawImage(img, 0, 0);
+          resolve(canvas.toDataURL('image/png', 0.9));
+        } catch (e) {
+          resolve(src);
+        }
+      };
+      img.onerror = () => resolve(src);
+      img.src = src;
+      return;
+    }
+
+    // Immagini normali (http/https)
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth || 900;
+      canvas.height = img.naturalHeight || 900;
+      try {
+        canvas.getContext('2d').drawImage(img, 0, 0);
+        resolve(canvas.toDataURL('image/png', 0.92));
+      } catch (e) {
+        resolve(src);
+      }
+    };
+    img.onerror = () => resolve(src);
+    img.src = src.includes('?') ? src : src + '?v=' + Date.now();
+  });
+}
+async function captureCard(){
+  const card = document.getElementById('cardWrapper');
+  
+  const ce = card.querySelectorAll('[contenteditable="true"]');
+  ce.forEach(e => e.contentEditable = 'false');
+
+  document.querySelectorAll('.free-text-el').forEach(e => e.classList.remove('selected'));
+
+  const handles = card.querySelectorAll('.float-handle');
+  const originalDisplays = [];
+  handles.forEach(h => {
+    originalDisplays.push(h.style.display || '');
+    h.style.display = 'none';
+  });
+
+  const imgs = Array.from(card.querySelectorAll('img'));
+  const orig = imgs.map(img => img.src);
+
+  for (let img of imgs) {
+    if (img.src && !img.src.startsWith('data:')) {
+      try {
+        img.src = await toDataUrl(img.src);
+      } catch(e) {}
+    }
+  }
+
+  await new Promise(r => setTimeout(r, 400));
+
+  try {
+    const canvas = await html2canvas(card, {
+      scale: 4,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: "#ffffff",
+      width: 360,
+      height: 640,
+      logging: false,
+      imageTimeout: 30000,
+      onclone: (clonedDoc) => {
+        const cCard = clonedDoc.getElementById('cardWrapper');
+        if (!cCard) return;
+
+        cCard.style.width = '360px';
+        cCard.style.height = '640px';
+        cCard.style.minWidth = '360px';
+        cCard.style.minHeight = '640px';
+        cCard.style.overflow = 'hidden';
+        cCard.style.boxShadow = 'none';
+        cCard.style.transform = 'none';
+
+        // === FIX AGGRESSIVO PER LOGO SFONDO ===
+        const bgImg = cCard.querySelector('#bgLogoImg');
+        if (bgImg) {
+          bgImg.style.position = 'absolute';
+          bgImg.style.top = '50%';
+          bgImg.style.left = '50%';
+          bgImg.style.transform = 'translate(-50%, -50%)';
+          bgImg.style.width = 'auto';           // lascia decidere al browser
+          bgImg.style.height = 'auto';
+          bgImg.style.maxWidth = '85%';
+          bgImg.style.maxHeight = '85%';
+          bgImg.style.objectFit = 'contain';
+          bgImg.style.objectPosition = 'center';
+          bgImg.style.opacity = bgImg.style.opacity || '0.18';
+          bgImg.style.filter = 'none';
+        }
+
+        const bgLayer = cCard.querySelector('#bgLogoLayer');
+        if (bgLayer) {
+          bgLayer.style.display = 'flex';
+          bgLayer.style.alignItems = 'center';
+          bgLayer.style.justifyContent = 'center';
+          bgLayer.style.width = '100%';
+          bgLayer.style.height = '100%';
+          bgLayer.style.position = 'absolute';
+          bgLayer.style.inset = '0';
+        }
+
+        cCard.querySelectorAll('.box-ufficiale').forEach(el => el.style.transform = 'none');
+        cCard.querySelectorAll('.float-handle').forEach(h => h.style.display = 'none');
+      }
+    });
+
+    return {canvas, orig, imgs, handles, originalDisplays};
+  } catch(e) {
+    console.error(e);
+    throw e;
+  } finally {
+    ce.forEach(e => e.contentEditable = 'true');
+    handles.forEach((h, i) => h.style.display = originalDisplays[i] || '');
+    imgs.forEach((img, i) => { if (orig[i]) img.src = orig[i]; });
+  }
+}
+window.downloadCard=async function(){
+  const pngBtns=document.querySelectorAll('[onclick*="downloadCard"]');
+  const zipBtns=document.querySelectorAll('[onclick*="downloadZip"]');
+  pngBtns.forEach(b=>{b.textContent='⏳ Export…';b.disabled=true;});
+  let captureResult=null;
+  try{
+    captureResult=await captureCard();
+    const {canvas,orig,imgs,handles}=captureResult;
+    const a=document.createElement('a');a.download=`ficup-${String(idx+1).padStart(3,'0')}.png`;a.href=canvas.toDataURL('image/png',1.0);a.click();
+    Array.from(imgs).forEach((img,i)=>{img.src=orig[i];});
+    handles.forEach(h=>{h.style.display=h.dataset.prevDisplay||'';});
+  }catch(e){
+    if(captureResult){
+      Array.from(captureResult.imgs).forEach((img,i)=>{img.src=captureResult.orig[i];});
+      captureResult.handles.forEach(h=>{h.style.display=h.dataset.prevDisplay||'';});
+    }
+    alert('Export error: '+e.message);
+  }finally{
+    pngBtns.forEach(b=>{b.textContent='⬇ SCARICA PNG';b.disabled=false;});
+    zipBtns.forEach(b=>{b.textContent='📦 ZIP';b.disabled=false;});
+  }
+};
+
+/* ══ DOWNLOAD ZIP ══ */
+window.downloadZip=async function(){
+  const zipBtn=document.querySelector('[onclick*="downloadZip"]');zipBtn.textContent='⏳ ZIP…';zipBtn.disabled=true;
+  try{
+    const {canvas,orig,imgs,handles}=await captureCard();
+    Array.from(imgs).forEach((img,i)=>{img.src=orig[i];});
+    handles.forEach(h=>{h.style.display=h.dataset.prevDisplay||'';});
+    const pngDataUrl=canvas.toDataURL('image/png',1.0);
+    const pngBase64=pngDataUrl.split(',')[1];
+    const zip=new JSZip();
+    // Add the HTML source
+    const htmlSrc=document.documentElement.outerHTML;
+    zip.file('ficup-card-editor.html',htmlSrc);
+    // Add the PNG export
+    zip.file(`ficup-card-${String(idx+1).padStart(3,'0')}.png`,pngBase64,{base64:true});
+    // Add a README
+    zip.file('README.txt','FiCup Box News Pro — Enhanced\n\nContenuto:\n- ficup-card-editor.html → Apri nel browser per usare il tool\n- ficup-card-XXX.png → Immagine esportata\n\nNon serve connessione internet per usare l\'editor (eccetto per caricare loghi e Firebase).');
+    const blob=await zip.generateAsync({type:'blob'});
+    const a=document.createElement('a');a.download='ficup-pro.zip';a.href=URL.createObjectURL(blob);a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),10000);
+  }catch(e){alert('ZIP error: '+e.message);}
+  finally{zipBtn.textContent='📦 ZIP';zipBtn.disabled=false;}
+};
+
+/* ══ FIREBASE ══ */
+window.openFirebase=async function(){document.getElementById('fbModal').style.display='flex';await fbRefresh();};
+window.closeFb=()=>document.getElementById('fbModal').style.display='none';
+window.fbBgClose=e=>{if(e.target===document.getElementById('fbModal'))closeFb();};
+window.fbSave=async function(){
+  const name=document.getElementById('fbName').value.trim(),url=document.getElementById('fbUrl').value.trim();
+  if(!name||!url){alert('Inserisci nome e URL.');return;}
+  const btn=document.getElementById('fbSaveBtn');btn.textContent='⏳…';btn.disabled=true;
+  try{await setDoc(doc(db,'logos',name),{url,ts:new Date().toISOString()});allLogos[name]=url;document.getElementById('fbName').value='';document.getElementById('fbUrl').value='';await fbRefresh();btn.textContent='✅';setTimeout(()=>{btn.textContent='💾 Salva su Firebase';btn.disabled=false;},1500);}
+  catch(e){alert('Errore: '+e.message);btn.textContent='💾 Salva su Firebase';btn.disabled=false;}
+};
+window.fbDel=async function(name){if(!confirm(`Eliminare "${name}"?`))return;try{await deleteDoc(doc(db,'logos',name));delete allLogos[name];await fbRefresh();}catch(e){alert(e.message);}};
+async function fbRefresh(){
+  const list=document.getElementById('fbList');list.innerHTML='<div style="text-align:center;color:#94a3b8;padding:12px;font-size:12px">Caricamento…</div>';
+  try{
+    const comb={...BUILTIN};const snap=await getDocs(collection(db,'logos'));snap.forEach(d=>{comb[d.id]=d.data().url;allLogos[d.id]=d.data().url;});
+    list.innerHTML='';
+    Object.entries(comb).sort((a,b)=>a[0].localeCompare(b[0])).forEach(([name,url])=>{
+      const fb=!BUILTIN[name];const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:10px;padding:7px 10px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;margin-bottom:6px';
+      row.innerHTML=`<div style="width:32px;height:32px;display:flex;align-items:center;justify-content:center"><img src="${url}" style="max-width:32px;max-height:32px;object-fit:contain" crossorigin="anonymous" onerror="this.src=''"></div><div style="flex:1;min-width:0"><div style="font-size:11px;font-weight:800;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${name}</div><div style="font-size:9px;color:#94a3b8">${fb?'🔥 Firebase':'📦 Built-in'}</div></div>${fb?`<button onclick="fbDel('${name}')" style="background:#fee2e2;color:#dc2626;border:none;border-radius:6px;padding:4px 8px;font-size:10px;font-weight:800;cursor:pointer">✕</button>`:''}`;
+      list.appendChild(row);
+    });
+    document.getElementById('fbStatus').textContent=Object.keys(comb).length+' club totali';
+  }catch(e){list.innerHTML=`<div style="color:red;text-align:center;font-size:11px">Errore: ${e.message}</div>`;}
+}
+</script>
+</body>
+</html>
