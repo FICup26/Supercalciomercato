@@ -1650,31 +1650,36 @@ async function toDataUrl(src) {
 async function captureCard(){
   const card = document.getElementById('cardWrapper');
   
+  // Disabilita editing
   const ce = card.querySelectorAll('[contenteditable="true"]');
   ce.forEach(e => e.contentEditable = 'false');
 
   document.querySelectorAll('.free-text-el').forEach(e => e.classList.remove('selected'));
 
-  // Nascondi tutti gli elementi di controllo durante l'export
-  const handles = card.querySelectorAll('.float-handle, .img-del, .arr-del, .xdel');
+  // NASCONDI TUTTI I PULSANTI X e HANDLE
+  const toHide = card.querySelectorAll('.img-del, .arr-del, .xdel, .float-handle, .multi-img-wrap button');
   const originalDisplays = [];
-  handles.forEach(h => {
-    originalDisplays.push(h.style.display || '');
-    h.style.display = 'none';
+  
+  toHide.forEach(el => {
+    originalDisplays.push(el.style.display || '');
+    el.style.display = 'none !important';
+    el.style.visibility = 'hidden';
+    el.style.opacity = '0';
   });
 
   const imgs = Array.from(card.querySelectorAll('img'));
   const orig = imgs.map(img => img.src);
 
+  // Converti immagini
   for (let img of imgs) {
-    if (img.src && !img.src.startsWith('data:')) {
+    if (img.src) {
       try {
         img.src = await toDataUrl(img.src);
       } catch(e) {}
     }
   }
 
-  await new Promise(r => setTimeout(r, 300));
+  await new Promise(r => setTimeout(r, 400));
 
   try {
     const canvas = await html2canvas(card, {
@@ -1692,18 +1697,18 @@ async function captureCard(){
 
         cCard.style.width = '360px';
         cCard.style.height = '640px';
-        cCard.style.minWidth = '360px';
-        cCard.style.minHeight = '640px';
         cCard.style.overflow = 'hidden';
         cCard.style.boxShadow = 'none';
-        cCard.style.transform = 'none';
 
-        // Nascondi definitivamente pulsanti X e handle
-        cCard.querySelectorAll('.img-del, .arr-del, .xdel, .float-handle').forEach(el => {
-          el.style.display = 'none';
+        // Nascondi aggressivamente tutti i pulsanti X nell'export
+        cCard.querySelectorAll('.img-del, .arr-del, .xdel, button, .float-handle').forEach(el => {
+          el.style.display = 'none !important';
+          el.style.visibility = 'hidden';
+          el.style.opacity = '0';
+          el.remove(); // rimozione fisica dalla copia
         });
 
-        // Fix logo sfondo
+        // Fix sfondo logo
         const bgImg = cCard.querySelector('#bgLogoImg');
         if (bgImg) {
           bgImg.style.position = 'absolute';
@@ -1717,13 +1722,20 @@ async function captureCard(){
       }
     });
 
-    return {canvas, orig, imgs, handles, originalDisplays};
+    return {canvas, orig, imgs, toHide, originalDisplays};
   } catch(e) {
     console.error(e);
     throw e;
   } finally {
+    // Ripristina
     ce.forEach(e => e.contentEditable = 'true');
-    handles.forEach((h, i) => h.style.display = originalDisplays[i] || '');
+    toHide.forEach((el, i) => {
+      if (el) {
+        el.style.display = originalDisplays[i] || '';
+        el.style.visibility = '';
+        el.style.opacity = '';
+      }
+    });
     imgs.forEach((img, i) => { if (orig[i]) img.src = orig[i]; });
   }
 }
