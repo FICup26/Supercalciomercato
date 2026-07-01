@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="UTF-8">
@@ -180,6 +180,32 @@ details[open]>summary .arr{transform:rotate(90deg)}
 .frame-glow-red{box-shadow:inset 0 0 20px rgba(239,68,68,.4),inset 0 0 4px rgba(239,68,68,.8)!important}
 .frame-glow-green{box-shadow:inset 0 0 20px rgba(16,185,129,.4),inset 0 0 4px rgba(16,185,129,.8)!important}
 .frame-glow-purple{box-shadow:inset 0 0 20px rgba(139,92,246,.4),inset 0 0 4px rgba(139,92,246,.8)!important}
+/* Spaziatura extra per la nuova sezione sfondo */
+#console .slb + input[type="file"],
+#console .slb + input[type="text"] {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+#console .br[style*="Sfondo"] {
+  margin: 12px 0;
+}
+
+.sl-row {
+  margin-bottom: 10px !important;
+}
+/* Spaziatura extra per Accent Line Inferiore */
+.slb:contains("Accent Line Inferiore") + * {
+  margin-top: 12px;
+}
+
+#alc1b, #alc2b {
+  margin: 6px 4px !important;
+}
+
+.sl-row:last-child {
+  margin-bottom: 16px !important;
+}
 </style>
 </head>
 <body>
@@ -543,6 +569,45 @@ details[open]>summary .arr{transform:rotate(90deg)}
       </div>
       <p style="font-size:9px;color:#94a3b8">Trascina la barra scura per riposizionare il blocco immagini. Le immagini vengono scalate correttamente nell'export PNG.</p>
     </div>
+    <div class="div"></div>
+<div class="div"></div>
+
+<div class="slb">🌄 Sfondo Card Personalizzato</div>
+
+<input type="file" id="bgImageUpload" accept="image/*" style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;font-size:11px;margin-bottom:6px">
+
+<input type="text" id="bgImageUrl" placeholder="https://esempio.com/sfondo.jpg" style="width:100%;padding:10px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:8px;font-size:11px;outline:none">
+
+<div class="br" style="margin:10px 0 12px 0">
+  <button class="btn grn" onclick="loadCustomBg()">Carica Sfondo</button>
+  <button class="btn red" onclick="removeCustomBg()">✕ Rimuovi</button>
+</div>
+
+<div class="div"></div>
+
+<div class="sl-row">
+  <label>Opacità</label>
+  <input type="range" id="sl-bgop2" min="0" max="100" value="25" step="1" oninput="setCustomBgOp(this.value);document.getElementById('sv-bgop2').textContent=this.value">
+  <span class="sv" id="sv-bgop2">25</span>
+</div>
+
+<div class="sl-row">
+  <label>Sfocatura</label>
+  <input type="range" id="sl-bgbl2" min="0" max="30" value="0" step="1" oninput="setCustomBgBlur(this.value);document.getElementById('sv-bgbl2').textContent=this.value">
+  <span class="sv" id="sv-bgbl2">0</span>
+</div>
+
+<div class="sl-row">
+  <label>Zoom Immagine</label>
+  <div class="pm"><button onclick="adjBgScale(-5)">−</button></div>
+  <input type="range" id="sl-bgscale" min="50" max="200" value="100" step="5" oninput="setCustomBgScale(this.value);document.getElementById('sv-bgscale').textContent=this.value">
+  <div class="pm"><button onclick="adjBgScale(5)">+</button></div>
+  <span class="sv" id="sv-bgscale">100</span>
+</div>
+
+<div class="div"></div>
+<div class="div"></div>
+
   </details>
 
   <!-- ⑥ DESIGN -->
@@ -636,6 +701,29 @@ details[open]>summary .arr{transform:rotate(90deg)}
         <input type="color" value="#111827" onchange="document.getElementById('cardBanner').style.background=this.value" class="csw">
       </div>
     </div>
+   <div class="div"></div>
+<div class="div"></div>
+
+<div class="slb">Accent Line Inferiore</div>
+
+<div class="br" style="margin:12px 0 10px 0">
+  <button class="btn grn" onclick="setVis('cardAccentBottom','block')">Mostra</button>
+  <button class="btn red" onclick="setVis('cardAccentBottom','none')">Nascondi</button>
+</div>
+
+<div class="br" style="margin-bottom:12px">
+  <input type="color" id="alc1b" value="#3b82f6" class="csw">
+  <input type="color" id="alc2b" value="#8b5cf6" class="csw">
+  <button class="btn" onclick="setBottomAccentGrad()">✓ Gradiente</button>
+</div>
+
+<div class="sl-row">
+  <label>Altezza</label>
+  <input type="range" id="sl-alb" min="1" max="20" value="5" step="1" oninput="document.getElementById('cardAccentBottom').style.height=this.value+'px';document.getElementById('sv-alb').textContent=this.value">
+  <span class="sv" id="sv-alb">5</span>
+</div>
+
+<div class="div"></div>
   </details>
 
   <!-- ⑦ EFFETTI -->
@@ -743,6 +831,10 @@ details[open]>summary .arr{transform:rotate(90deg)}
       <div id="bgLogoLayer" style="display:none">
         <img id="bgLogoImg" src="" alt="" crossorigin="anonymous">
       </div>
+   <!-- Layer Sfondo Immagine Personalizzato -->
+<div id="customBgLayer" style="position:absolute;inset:0;pointer-events:none;z-index:0;display:none;overflow:hidden">
+  <img id="customBgImg" src="" alt="" style="width:100%;height:100%;object-fit:cover;opacity:0.25">
+</div>
       <!-- Layer 1: texture -->
       <div id="texBg"></div>
       <!-- Layer 2: vignette -->
@@ -753,6 +845,7 @@ details[open]>summary .arr{transform:rotate(90deg)}
       <div id="mainTitleEl">⚽ CALCIO MERCATO FICUP</div>
       <!-- Content -->
       <div id="cardAccentLine"></div>
+
       <div id="cardBanner"><div id="bannerText" contenteditable="false">⚽ CALCIOMERCATO FICUP 2026</div></div>
       <div id="cardHeader">
         <span id="cardTime">18:30</span>
@@ -785,6 +878,8 @@ details[open]>summary .arr{transform:rotate(90deg)}
         <span id="cardTag">⚽ News Aggiornate</span>
         <span id="cardDate">11 Giugno 2026</span>
       </div>
+      <!-- Accent Inferiore (dopo il contenuto principale) -->
+<div id="cardAccentBottom" style="height:5px;background:linear-gradient(90deg,#3b82f6,#8b5cf6);flex-shrink:0;display:none;margin-top:auto"></div>
     </div>
   </div>
 
@@ -1717,6 +1812,55 @@ async function fbRefresh(){
     document.getElementById('fbStatus').textContent=Object.keys(comb).length+' club totali';
   }catch(e){list.innerHTML=`<div style="color:red;text-align:center;font-size:11px">Errore: ${e.message}</div>`;}
 }
+// === NUOVE FUNZIONI CORRETTE ===
+window.loadCustomBg = function() {
+  const file = document.getElementById('bgImageUpload').files[0];
+  const url = document.getElementById('bgImageUrl').value.trim();
+  
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('customBgImg').src = e.target.result;
+      document.getElementById('customBgLayer').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  } else if (url) {
+    document.getElementById('customBgImg').src = url;
+    document.getElementById('customBgLayer').style.display = 'block';
+  }
+};
+
+window.removeCustomBg = function() {
+  document.getElementById('customBgLayer').style.display = 'none';
+  document.getElementById('customBgImg').src = '';
+};
+
+window.setCustomBgOp = function(v) {
+  document.getElementById('customBgImg').style.opacity = v/100;
+};
+
+window.setCustomBgBlur = function(v) {
+  document.getElementById('customBgImg').style.filter = `blur(${v}px)`;
+};
+
+window.setBottomAccentGrad = function() {
+  const c1 = document.getElementById('alc1b').value;
+  const c2 = document.getElementById('alc2b').value;
+  document.getElementById('cardAccentBottom').style.background = `linear-gradient(90deg,\( {c1}, \){c2})`;
+};
+window.setCustomBgScale = function(v) {
+  document.getElementById('customBgImg').style.transform = `scale(${v/100})`;
+};
+
+window.adjBgScale = function(delta) {
+  const sl = document.getElementById('sl-bgscale');
+  let nv = parseInt(sl.value) + delta;
+  nv = Math.max(50, Math.min(200, nv));
+  sl.value = nv;
+  setCustomBgScale(nv);
+  document.getElementById('sv-bgscale').textContent = nv;
+};
 </script>
 </body>
 </html>
+
