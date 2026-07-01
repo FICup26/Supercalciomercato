@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="UTF-8">
@@ -1655,7 +1655,8 @@ async function captureCard(){
 
   document.querySelectorAll('.free-text-el').forEach(e => e.classList.remove('selected'));
 
-  const handles = card.querySelectorAll('.float-handle');
+  // Nascondi tutti gli elementi di controllo durante l'export
+  const handles = card.querySelectorAll('.float-handle, .img-del, .arr-del, .xdel');
   const originalDisplays = [];
   handles.forEach(h => {
     originalDisplays.push(h.style.display || '');
@@ -1673,7 +1674,7 @@ async function captureCard(){
     }
   }
 
-  await new Promise(r => setTimeout(r, 400));
+  await new Promise(r => setTimeout(r, 300));
 
   try {
     const canvas = await html2canvas(card, {
@@ -1697,36 +1698,22 @@ async function captureCard(){
         cCard.style.boxShadow = 'none';
         cCard.style.transform = 'none';
 
-        // === FIX AGGRESSIVO PER LOGO SFONDO ===
+        // Nascondi definitivamente pulsanti X e handle
+        cCard.querySelectorAll('.img-del, .arr-del, .xdel, .float-handle').forEach(el => {
+          el.style.display = 'none';
+        });
+
+        // Fix logo sfondo
         const bgImg = cCard.querySelector('#bgLogoImg');
         if (bgImg) {
           bgImg.style.position = 'absolute';
           bgImg.style.top = '50%';
           bgImg.style.left = '50%';
           bgImg.style.transform = 'translate(-50%, -50%)';
-          bgImg.style.width = 'auto';           // lascia decidere al browser
-          bgImg.style.height = 'auto';
           bgImg.style.maxWidth = '85%';
           bgImg.style.maxHeight = '85%';
           bgImg.style.objectFit = 'contain';
-          bgImg.style.objectPosition = 'center';
-          bgImg.style.opacity = bgImg.style.opacity || '0.18';
-          bgImg.style.filter = 'none';
         }
-
-        const bgLayer = cCard.querySelector('#bgLogoLayer');
-        if (bgLayer) {
-          bgLayer.style.display = 'flex';
-          bgLayer.style.alignItems = 'center';
-          bgLayer.style.justifyContent = 'center';
-          bgLayer.style.width = '100%';
-          bgLayer.style.height = '100%';
-          bgLayer.style.position = 'absolute';
-          bgLayer.style.inset = '0';
-        }
-
-        cCard.querySelectorAll('.box-ufficiale').forEach(el => el.style.transform = 'none');
-        cCard.querySelectorAll('.float-handle').forEach(h => h.style.display = 'none');
       }
     });
 
@@ -1863,4 +1850,3 @@ window.adjBgScale = function(delta) {
 </script>
 </body>
 </html>
-
