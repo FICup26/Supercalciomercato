@@ -1748,17 +1748,28 @@ window.downloadCard=async function(){
   const pngBtns=document.querySelectorAll('[onclick*="downloadCard"]');
   const zipBtns=document.querySelectorAll('[onclick*="downloadZip"]');
   pngBtns.forEach(b=>{b.textContent='⏳ Export…';b.disabled=true;});
+  
   let captureResult=null;
   try{
     captureResult=await captureCard();
-    const {canvas,orig,imgs,handles}=captureResult;
-    const a=document.createElement('a');a.download=`ficup-${String(idx+1).padStart(3,'0')}.png`;a.href=canvas.toDataURL('image/png',1.0);a.click();
-    Array.from(imgs).forEach((img,i)=>{img.src=orig[i];});
-    handles.forEach(h=>{h.style.display=h.dataset.prevDisplay||'';});
+    const {canvas, orig, imgs, toHide} = captureResult;   // <-- corretto
+
+    const a=document.createElement('a');
+    a.download=`ficup-${String(idx+1).padStart(3,'0')}.png`;
+    a.href=canvas.toDataURL('image/png',1.0);
+    a.click();
+
+    // Ripristino immagini
+    Array.from(imgs).forEach((img,i)=>{ 
+      if (orig[i]) img.src = orig[i]; 
+    });
+
   }catch(e){
+    console.error(e);
     if(captureResult){
-      Array.from(captureResult.imgs).forEach((img,i)=>{img.src=captureResult.orig[i];});
-      captureResult.handles.forEach(h=>{h.style.display=h.dataset.prevDisplay||'';});
+      Array.from(captureResult.imgs).forEach((img,i)=>{ 
+        if (captureResult.orig[i]) img.src = captureResult.orig[i]; 
+      });
     }
     alert('Export error: '+e.message);
   }finally{
