@@ -24,7 +24,7 @@ body{background:#111827;min-height:100vh;font-family:'Inter',sans-serif;color:#1
 #texBg{position:absolute;inset:0;pointer-events:none;z-index:1;transition:opacity .3s}
 #vigBg{position:absolute;inset:0;pointer-events:none;z-index:2}
 #cardFrameEl{position:absolute;inset:0;pointer-events:none;z-index:3;border:0px solid transparent;border-radius:0px;transition:all .3s}
-#cardWrapper>*:not(#bgLogoLayer):not(#texBg):not(#vigBg):not(#cardFrameEl):not(#mainTitleEl):not(.free-text-el):not(#transferArrowsArea):not(#multiImagesArea){position:relative;z-index:4}
+#cardWrapper>*:not(#bgLogoLayer):not(#texBg):not(#vigBg):not(#cardFrameEl):not(#mainTitleEl):not(.free-text-el):not(#transferArrowsArea):not(#multiImagesArea):not(#transferBandArea){position:relative;z-index:4}
 #mainTitleEl{z-index:20!important}
 .free-text-el{z-index:18!important}
 
@@ -66,6 +66,19 @@ body{background:#111827;min-height:100vh;font-family:'Inter',sans-serif;color:#1
 .transfer-arrow{display:inline-flex;align-items:center;gap:3px;font-size:28px;font-weight:900;line-height:1;user-select:none;position:relative;padding:4px 8px;border-radius:8px}
 .transfer-arrow .arr-del{position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;display:none;align-items:center;justify-content:center;cursor:pointer;font-weight:900;line-height:1}
 .transfer-arrow:hover .arr-del{display:flex}
+
+/* ════ TRANSFER BAND — 2 loghi + frecce SVG ════ */
+#transferBandArea{position:absolute;z-index:17;display:none;flex-direction:column;left:50%;top:50%;transform:translateX(-50%);cursor:default;touch-action:none}
+#transferBandArea .float-handle{width:100%;background:rgba(0,0,0,.6);border-radius:8px 8px 0 0;text-align:center;font-size:9px;color:rgba(255,255,255,.7);padding:3px 8px;cursor:move;user-select:none;letter-spacing:1px}
+.band-row{display:flex;align-items:center;justify-content:center;padding:6px 8px;gap:0}
+.band-logo-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;z-index:2;position:relative}
+.band-logo-circle{border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;width:72px;height:72px;flex-shrink:0;box-shadow:0 6px 22px rgba(0,0,0,.55),0 0 0 3px rgba(255,255,255,.25)}
+.band-logo-circle img{width:52px;height:52px;object-fit:contain}
+.band-arrows-center{display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(4,4,18,.85);border-radius:14px;padding:10px 18px;margin:0 -6px;z-index:1;box-shadow:0 4px 28px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,255,.07)}
+
+/* Body text box */
+#bodyTextBox{border-radius:0;transition:background .25s,border-radius .25s,padding .25s}
+#bodyTextBox.box-active{border-radius:12px;padding:10px 14px}
 
 /* Multiple images — absolutely positioned, draggable */
 #multiImagesArea{position:absolute;z-index:15;display:none;flex-direction:column;left:0;top:200px;width:360px;gap:0;overflow:hidden;cursor:default;touch-action:none}
@@ -223,7 +236,10 @@ details[open]>summary .arr{transform:rotate(90deg)}
       <div style="color:rgba(255,255,255,.4);font-size:9px">Enhanced — Logo BG · Cornici · Multi-Img · Frecce · Testo Libero</div>
     </div>
   </div>
-  <button onclick="openFirebase()" style="background:linear-gradient(135deg,#ea580c,#dc2626);color:#fff;border:none;border-radius:9px;padding:7px 12px;font-size:9px;font-weight:800;cursor:pointer">⚽ LOGHI</button>
+  <div style="display:flex;gap:6px">
+    <button onclick="openFirebase()" style="background:linear-gradient(135deg,#ea580c,#dc2626);color:#fff;border:none;border-radius:9px;padding:7px 12px;font-size:9px;font-weight:800;cursor:pointer">⚽ LOGHI</button>
+    <button onclick="openCardConfigs()" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:9px;padding:7px 12px;font-size:9px;font-weight:800;cursor:pointer">💾 CONFIGS</button>
+  </div>
 </div>
 
 <div class="console-wrap">
@@ -321,6 +337,34 @@ details[open]>summary .arr{transform:rotate(90deg)}
         <input type="range" id="sl-bt" min="8" max="22" value="13" step="1" onchange="applyFsz('cardBodyText',this)">
         <div class="pm"><button onclick="adj('sl-bt',1,'cardBodyText')">+</button></div>
         <span class="sv" id="sv-bt">13</span>
+      </div>
+      <div class="div"></div>
+      <div class="slb">📦 Box Sfondo Corpo Testo</div>
+      <div class="br">
+        <button class="btn grn" onclick="setBodyBox(true)">✅ Mostra Box</button>
+        <button class="btn red" onclick="setBodyBox(false)">✕ Nascondi</button>
+      </div>
+      <div class="br">
+        <label style="font-size:10px;color:#64748b;flex-shrink:0">Colore:</label>
+        <input type="color" id="bodyBoxColor" value="#000000" onchange="setBodyBoxColor(this.value)" class="csw" style="width:34px;height:34px">
+        <button class="btn" onclick="setBodyBoxColor('#000000')" style="background:#000;color:#fff">Nero</button>
+        <button class="btn" onclick="setBodyBoxColor('#1e293b')" style="background:#1e293b;color:#fff">Navy</button>
+        <button class="btn" onclick="setBodyBoxColor('#ffffff')" style="background:#fff;border:1px solid #e2e8f0">Bianco</button>
+        <button class="btn" onclick="setBodyBoxColor('#0f172a')" style="background:#0f172a;color:#fff">Grafite</button>
+      </div>
+      <div class="sl-row">
+        <label>Opacità</label>
+        <div class="pm"><button onclick="adjBodyBoxOp(-5)">−</button></div>
+        <input type="range" id="sl-bbo" min="0" max="100" value="60" step="5" oninput="setBodyBoxOp(this.value);document.getElementById('sv-bbo').textContent=this.value+'%'">
+        <div class="pm"><button onclick="adjBodyBoxOp(5)">+</button></div>
+        <span class="sv" id="sv-bbo">60%</span>
+      </div>
+      <div class="sl-row">
+        <label>Bordo</label>
+        <div class="pm"><button onclick="adjBodyBoxRadius(-2)">−</button></div>
+        <input type="range" id="sl-bbr" min="0" max="28" value="12" step="2" oninput="setBodyBoxRadius(this.value);document.getElementById('sv-bbr').textContent=this.value">
+        <div class="pm"><button onclick="adjBodyBoxRadius(2)">+</button></div>
+        <span class="sv" id="sv-bbr">12</span>
       </div>
       <div class="div"></div>
       <div class="slb">Tag / Data Footer</div>
@@ -458,6 +502,56 @@ details[open]>summary .arr{transform:rotate(90deg)}
         <span class="sv" id="sv-as">32</span>
       </div>
       <button class="btn grn" onclick="addTransferArrow()">+ Aggiungi Freccia</button>
+      <div class="div"></div>
+      <div class="slb">🏟 BAND TRASFERIMENTO — 2 Loghi + Frecce</div>
+      <p style="font-size:9px;color:#94a3b8;line-height:1.5">Layout professionale con logo squadra cedente, frecce SVG con glow, logo squadra acquirente. Trascina per riposizionarlo sulla card.</p>
+      <div class="br">
+        <button class="btn grn" onclick="showBandArea()">Mostra Band</button>
+        <button class="btn red" onclick="hideBandArea()">Nascondi</button>
+        <button class="btn" onclick="centerBandArea()">⊕ Centra</button>
+      </div>
+      <div class="slb">Loghi</div>
+      <div class="br">
+        <button class="btn" onclick="openBandLogoPicker('left')">⬅ Logo DA</button>
+        <button class="btn" onclick="openBandLogoPicker('right')">Logo A ➡</button>
+      </div>
+      <p style="font-size:9px;color:#94a3b8">Doppio clic sulle etichette "DA" / "A" nella card per modificarle.</p>
+      <div class="slb">Colore Frecce</div>
+      <div class="br">
+        <input type="color" id="bandArrColor" value="#22c55e" onchange="setBandArrColor(this.value)" class="csw" style="width:34px;height:34px">
+        <button class="btn" onclick="setBandArrColor('#22c55e')" style="background:#22c55e;color:#fff">Verde</button>
+        <button class="btn" onclick="setBandArrColor('#ef4444')" style="background:#ef4444;color:#fff">Rosso</button>
+        <button class="btn" onclick="setBandArrColor('#3b82f6')" style="background:#3b82f6;color:#fff">Blu</button>
+        <button class="btn" onclick="setBandArrColor('#f5c518')" style="background:#f5c518;color:#222">Oro</button>
+        <button class="btn" onclick="setBandArrColor('#ffffff')" style="background:#888;color:#fff">Bianco</button>
+      </div>
+      <div class="slb">Sfondo Pill Frecce</div>
+      <div class="br">
+        <input type="color" id="bandPillColor" value="#040412" onchange="setBandPillColor(this.value)" class="csw" style="width:34px;height:34px">
+        <button class="btn" onclick="setBandPillColor('rgba(4,4,18,.85)')">Scuro</button>
+        <button class="btn" onclick="setBandPillColor('rgba(0,0,0,.5)')">Trasparente</button>
+      </div>
+      <div class="sl-row">
+        <label>Dimensione Logo</label>
+        <div class="pm"><button onclick="adjBandLogoSize(-6)">−</button></div>
+        <input type="range" id="sl-bls" min="40" max="120" value="72" step="6" oninput="setBandLogoSize(this.value);document.getElementById('sv-bls').textContent=this.value">
+        <div class="pm"><button onclick="adjBandLogoSize(6)">+</button></div>
+        <span class="sv" id="sv-bls">72</span>
+      </div>
+      <div class="sl-row">
+        <label>Dim. Frecce</label>
+        <div class="pm"><button onclick="adjBandArrSize(-8)">−</button></div>
+        <input type="range" id="sl-bas" min="40" max="140" value="88" step="8" oninput="setBandArrWidth(this.value);document.getElementById('sv-bas').textContent=this.value">
+        <div class="pm"><button onclick="adjBandArrSize(8)">+</button></div>
+        <span class="sv" id="sv-bas">88</span>
+      </div>
+      <div class="slb">Cerchio Logo</div>
+      <div class="br">
+        <input type="color" id="bandCircleColor" value="#ffffff" onchange="setBandCircleColor(this.value)" class="csw" style="width:34px;height:34px">
+        <button class="btn" onclick="setBandCircleColor('#ffffff')">Bianco</button>
+        <button class="btn" onclick="setBandCircleColor('#111827')" style="background:#111827;color:#fff">Nero</button>
+        <button class="btn" onclick="setBandCircleColor('transparent')">Trasparente</button>
+      </div>
     </div>
   </details>
 
@@ -856,6 +950,32 @@ details[open]>summary .arr{transform:rotate(90deg)}
         <div class="float-handle" id="arrHandle">⠿ FRECCE — trascina</div>
         <div class="arr-row" id="arrRow"></div>
       </div>
+      <!-- Transfer Band — 2 loghi + frecce SVG professionali, draggable -->
+      <div id="transferBandArea">
+        <div class="float-handle" id="bandHandle">⠿ BAND TRASFERIMENTO — trascina</div>
+        <div class="band-row">
+          <div class="band-logo-wrap">
+            <div class="band-logo-circle" id="bandLeftCircle" onclick="openBandLogoPicker('left')" title="Clicca per scegliere logo">
+              <img id="bandLeftImg" src="" alt="" crossorigin="anonymous" style="display:none">
+              <span id="bandLeftPlaceholder" style="font-size:22px;opacity:.35">⚽</span>
+            </div>
+          </div>
+          <div class="band-arrows-center" id="bandArrowsCenter">
+            <svg id="bandArrowsSvg" xmlns="http://www.w3.org/2000/svg" width="88" height="34" viewBox="0 0 88 34">
+              <polyline points="3,6 17,17 3,28" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.28"/>
+              <polyline points="20,6 34,17 20,28" fill="none" stroke="#22c55e" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.52"/>
+              <polyline points="38,6 52,17 38,28" fill="none" stroke="#22c55e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.76"/>
+              <polyline points="56,6 70,17 56,28" fill="none" stroke="#22c55e" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" opacity="1"/>
+            </svg>
+          </div>
+          <div class="band-logo-wrap">
+            <div class="band-logo-circle" id="bandRightCircle" onclick="openBandLogoPicker('right')" title="Clicca per scegliere logo">
+              <img id="bandRightImg" src="" alt="" crossorigin="anonymous" style="display:none">
+              <span id="bandRightPlaceholder" style="font-size:22px;opacity:.35">⚽</span>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- Multi images — draggable overlay -->
       <div id="multiImagesArea" class="layout-horizontal">
         <div class="float-handle" id="imgHandle">⠿ IMMAGINI — trascina</div>
@@ -871,7 +991,9 @@ details[open]>summary .arr{transform:rotate(90deg)}
           <img id="teamLogo" src="" alt="" crossorigin="anonymous">
         </div>
         <h2 id="cardTitle">TITOLO NOTIZIA</h2>
-        <p id="cardBodyText">La descrizione della notizia verrà mostrata qui in modo chiaro e professionale.</p>
+        <div id="bodyTextBox">
+          <p id="cardBodyText">La descrizione della notizia verrà mostrata qui in modo chiaro e professionale.</p>
+        </div>
       </div>
       <div id="extraBoxesArea"></div>
       <div id="cardFooter">
@@ -941,6 +1063,27 @@ details[open]>summary .arr{transform:rotate(90deg)}
   </div>
 </div>
 
+<!-- CARD CONFIGS MODAL -->
+<div id="cfgModal" onclick="cfgBgClose(event)" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;align-items:center;justify-content:center">
+  <div id="cfgBox" style="background:#fff;border-radius:20px;padding:20px;width:min(500px,96vw);max-height:90vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <b style="font-size:13px">💾 Configurazioni Card</b>
+      <button onclick="closeCfg()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#94a3b8">✕</button>
+    </div>
+    <!-- Save current -->
+    <div style="background:#eff6ff;border-radius:12px;padding:14px;margin-bottom:14px">
+      <div style="font-size:10px;font-weight:800;color:#1e40af;margin-bottom:8px;letter-spacing:1px;text-transform:uppercase">💾 Salva configurazione attuale</div>
+      <input id="cfgName" type="text" placeholder="Nome config (es. Alaba-Juve)" maxlength="60"
+        style="width:100%;border:1px solid #bfdbfe;border-radius:8px;padding:9px;font-size:12px;margin-bottom:8px;outline:none">
+      <button onclick="saveCardConfig()" style="width:100%;background:#2563eb;color:#fff;font-weight:900;font-size:12px;padding:10px;border:none;border-radius:8px;cursor:pointer">💾 Salva su Firebase</button>
+    </div>
+    <!-- List saved -->
+    <div style="font-size:10px;font-weight:800;color:#374151;margin-bottom:8px;letter-spacing:1px;text-transform:uppercase">📂 Configurazioni Salvate</div>
+    <div id="cfgList" style="display:flex;flex-direction:column;gap:6px"></div>
+    <div id="cfgStatus" style="font-size:10px;color:#94a3b8;text-align:center;margin-top:10px"></div>
+  </div>
+</div>
+
 <!-- URL INPUT MODAL for multi-image -->
 <div id="urlImgModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:997;align-items:center;justify-content:center">
   <div style="background:#fff;border-radius:16px;padding:20px;width:min(380px,96vw)">
@@ -955,7 +1098,7 @@ details[open]>summary .arr{transform:rotate(90deg)}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, setDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 const db = getFirestore(initializeApp({ apiKey:"AIzaSyAWMmt7lrRF1V6AIpQWh2CwXZE88_w_8E0", authDomain:"ficup-c9186.firebaseapp.com", projectId:"ficup-c9186" }));
 
 const BUILTIN={"Atalanta":"https://i.ibb.co/HLfTYZx7/Logo-Atalanta-Bergamo-svg.png","Bologna":"https://i.ibb.co/jkM5SPbz/Bologna-F-C-1909-logo-svg.png","Cagliari":"https://i.ibb.co/MDpds1V1/cagliari-calcio-logo-png-seeklogo-315166-3.png","Como":"https://i.ibb.co/qYhwMQzH/Logo-Como-1907-2019.png","Cremonese":"https://i.ibb.co/mCKdTQkH/Unione-Sportiva-Cremonese-logo-svg-1.png","Fiorentina":"https://i.ibb.co/4gZ5jDc5/ACF-Fiorentina-logo-Italy-2022-svg.png","Genoa":"https://i.ibb.co/Z6RcxTWw/Genoa-Cricket-and-Football-Club-logo-svg.png","Inter":"https://i.ibb.co/F4C4vHjc/FC-Internazionale-Milano-2021-svg-1.png","Juventus":"https://i.ibb.co/xtkRyBJp/Juventus-FC-2017-logo.png","Lazio":"https://i.ibb.co/840BWT8m/Stemma-della-Societ-Sportiva-Lazio-svg.png","Lecce":"https://i.ibb.co/SDQ0zy8s/US-Lecce-Stemma-svg.png","Milan":"https://i.ibb.co/B2V1c6K3/Logo-of-AC-Milan-svg.png","Napoli":"https://i.ibb.co/DgmL7YGb/SSC-Neapel-svg.png","Parma":"https://i.ibb.co/bgMLjHdf/Logo-Parma-Calcio-1913-adozione-2016-svg.png","Pisa":"https://i.ibb.co/35bNsCSV/Logo-Pisa-SC-2017-svg.png","Roma":"https://i.ibb.co/rRkxM7Bf/AS-Roma-Logo-2017-svg-1.png","Sassuolo":"https://i.ibb.co/Xrj8PYjx/Ussassuolostemma-svg.png","Torino":"https://i.ibb.co/v62Bw8qY/Torino-FC-logo-svg.png","Udinese":"https://i.ibb.co/5xhRTYmp/Logo-Udinese-Calcio-svg.png","Verona":"https://i.ibb.co/k6yWJsZf/Hellas-Verona-FC-logo-2020-svg.png","Catanzaro":"https://i.ibb.co/WNKDsLHy/catanzaro.png","Spezia":"https://i.ibb.co/PGLKsGNZ/spezia-2025-b.png","Monza":"https://i.ibb.co/WdQCGpq/monza.png","Cesena":"https://i.ibb.co/9f5LMMv/cesena.png","Benevento":"https://i.ibb.co/Q7BzG0Rj/Benevento-Calcio-svg.png","Vicenza":"https://i.ibb.co/CsnVjPyw/Logo-LR-Vicenza-Virtus-2018.png","Pescara":"https://i.ibb.co/6CYyzmx/pescara-calcio-logo-png-seeklogo-107887-1.png","Padova":"https://i.ibb.co/7t99BMX9/padova.png","Palermo":"https://i.ibb.co/mCjsJXtc/palermo.png","Juve Stabia":"https://i.ibb.co/5W56hFW7/juve-stabia-scuro.png","Sampdoria":"https://i.ibb.co/3yHr93HP/sampdoria.png","Avellino":"https://i.ibb.co/8LYHV24k/avellino.png","Bari":"https://i.ibb.co/DPXzCpby/bari.png","Virtus Entella":"https://i.ibb.co/W4pfw4Dw/entella.png","Venezia":"https://i.ibb.co/p6bRsP8S/venezia.png","Reggiana":"https://i.ibb.co/dwJGM5Qn/reggiana-2025.png","Carrarese":"https://i.ibb.co/ds9HG0rs/carrarese.png","Mantova":"https://i.ibb.co/pjnfvcjr/mantova.png","Südtirol":"https://i.ibb.co/27kq705m/sudtirol.png","Frosinone":"https://i.ibb.co/nqms2T3x/frosinone.png","Empoli":"https://i.ibb.co/p6wJrjMX/empoli.png","Modena":"https://i.ibb.co/QjH1xQv9/modena-blu-b.png","Italia":"https://i.ibb.co/ksNmFLfF/Logo-Italy-National-Football-Team-2023-svg-1.png"};
@@ -1393,10 +1536,13 @@ function makeContainerDraggable(containerId, handleId){
   let drag=false,ox=0,oy=0,sx=0,sy=0;
   function startDrag(cx,cy){
     drag=true;
-    area.style.transform='none';
     const r=document.getElementById('cardWrapper').getBoundingClientRect();
     const ar=area.getBoundingClientRect();
+    // Leggi posizione visiva PRIMA di rimuovere il transform (evita lo scatto)
     ox=ar.left-r.left; oy=ar.top-r.top;
+    area.style.transform='none';
+    area.style.left=ox+'px';
+    area.style.top=oy+'px';
     sx=cx; sy=cy;
   }
   function moveDrag(cx,cy){
@@ -1417,6 +1563,7 @@ function makeContainerDraggable(containerId, handleId){
 }
 makeContainerDraggable('transferArrowsArea','arrHandle');
 makeContainerDraggable('multiImagesArea','imgHandle');
+makeContainerDraggable('transferBandArea','bandHandle');
 
 /* ══ HIDE HEADER / KEEP FICUP LOGO ══ */
 window.hideHeaderKeepLogo=function(){
@@ -1723,6 +1870,32 @@ async function captureCard(){
           bgImg.style.maxHeight = '85%';
           bgImg.style.objectFit = 'contain';
         }
+
+        // Fix immagine sfondo personalizzata:
+        // html2canvas NON gestisce object-fit:cover sugli <img>,
+        // quindi simuliamo manualmente il comportamento "cover".
+        const customBg = cCard.querySelector('#customBgImg');
+        if (customBg && customBg.src && !customBg.src.endsWith('/')) {
+          const iw = customBg.naturalWidth;
+          const ih = customBg.naturalHeight;
+          if (iw > 0 && ih > 0) {
+            const cW = 360, cH = 640;
+            const scale = Math.max(cW / iw, cH / ih);
+            const rw = Math.round(iw * scale);
+            const rh = Math.round(ih * scale);
+            const ox = Math.round((cW - rw) / 2);
+            const oy = Math.round((cH - rh) / 2);
+            customBg.style.objectFit = 'unset';
+            customBg.style.width = rw + 'px';
+            customBg.style.height = rh + 'px';
+            customBg.style.position = 'absolute';
+            customBg.style.left = ox + 'px';
+            customBg.style.top = oy + 'px';
+            customBg.style.maxWidth = 'none';
+            customBg.style.maxHeight = 'none';
+            customBg.style.transform = 'none';
+          }
+        }
       }
     });
 
@@ -1861,7 +2034,7 @@ window.setCustomBgBlur = function(v) {
 window.setBottomAccentGrad = function() {
   const c1 = document.getElementById('alc1b').value;
   const c2 = document.getElementById('alc2b').value;
-  document.getElementById('cardAccentBottom').style.background = `linear-gradient(90deg,\( {c1}, \){c2})`;
+  document.getElementById('cardAccentBottom').style.background = `linear-gradient(90deg,${c1},${c2})`;
 };
 window.setCustomBgScale = function(v) {
   document.getElementById('customBgImg').style.transform = `scale(${v/100})`;
@@ -1874,6 +2047,316 @@ window.adjBgScale = function(delta) {
   sl.value = nv;
   setCustomBgScale(nv);
   document.getElementById('sv-bgscale').textContent = nv;
+};
+
+/* ══ TRANSFER BAND — 2 Loghi + Frecce SVG ══ */
+window.showBandArea = function() {
+  const area = document.getElementById('transferBandArea');
+  area.style.display = 'flex';
+  area.style.transform = 'none';
+  if (!area._positioned) {
+    area._positioned = true;
+    // Centra in px — niente transform, così il drag funziona subito senza scatti
+    const card = document.getElementById('cardWrapper');
+    requestAnimationFrame(() => {
+      const cx = Math.round((card.clientWidth  - area.offsetWidth)  / 2);
+      const cy = Math.round((card.clientHeight - area.offsetHeight) / 2);
+      area.style.left = Math.max(0, cx) + 'px';
+      area.style.top  = Math.max(0, cy) + 'px';
+    });
+  }
+};
+window.hideBandArea = function() {
+  document.getElementById('transferBandArea').style.display = 'none';
+};
+window.centerBandArea = function() {
+  const area = document.getElementById('transferBandArea');
+  const card = document.getElementById('cardWrapper');
+  area.style.transform = 'none';
+  const cx = Math.round((card.clientWidth  - area.offsetWidth)  / 2);
+  const cy = Math.round((card.clientHeight - area.offsetHeight) / 2);
+  area.style.left = Math.max(0, cx) + 'px';
+  area.style.top  = Math.max(0, cy) + 'px';
+};
+
+// Open band logo picker — reuse existing logo picker modal
+let _bandPickerTarget = 'left'; // 'left' or 'right'
+window.openBandLogoPicker = async function(side) {
+  _bandPickerTarget = side;
+  await loadFb();
+  buildPickerIn('logoPicker', (url, name) => {
+    if (!url) { closeLp(); return; }
+    const img = document.getElementById(side === 'left' ? 'bandLeftImg' : 'bandRightImg');
+    const ph  = document.getElementById(side === 'left' ? 'bandLeftPlaceholder' : 'bandRightPlaceholder');
+    img.src = url;
+    img.style.display = 'block';
+    if (ph) ph.style.display = 'none';
+    showBandArea();
+    closeLp();
+  });
+  document.getElementById('lpModal').style.display = 'flex';
+};
+
+window.setBandArrColor = function(color) {
+  document.getElementById('bandArrColor').value = color;
+  const svg = document.getElementById('bandArrowsSvg');
+  if (!svg) return;
+  svg.querySelectorAll('polyline').forEach(p => p.setAttribute('stroke', color));
+};
+
+window.setBandPillColor = function(color) {
+  document.getElementById('bandPillColor').value = color.startsWith('rgba') ? '#040412' : color;
+  document.getElementById('bandArrowsCenter').style.background = color;
+};
+
+window.setBandLogoSize = function(v) {
+  const sz = parseInt(v);
+  document.getElementById('bandLeftCircle').style.width  = sz + 'px';
+  document.getElementById('bandLeftCircle').style.height = sz + 'px';
+  document.getElementById('bandRightCircle').style.width  = sz + 'px';
+  document.getElementById('bandRightCircle').style.height = sz + 'px';
+  const imgSz = Math.round(sz * 0.72);
+  ['bandLeftImg','bandRightImg'].forEach(id => {
+    const img = document.getElementById(id);
+    img.style.width  = imgSz + 'px';
+    img.style.height = imgSz + 'px';
+  });
+};
+window.adjBandLogoSize = function(d) {
+  const sl = document.getElementById('sl-bls');
+  const nv = Math.max(+sl.min, Math.min(+sl.max, +sl.value + d));
+  sl.value = nv; document.getElementById('sv-bls').textContent = nv;
+  setBandLogoSize(nv);
+};
+window.setBandArrWidth = function(v) {
+  const svg = document.getElementById('bandArrowsSvg');
+  if (!svg) return;
+  const w = parseInt(v);
+  // scale polylines relative to new width
+  const h = Math.round(w * 0.387);
+  svg.setAttribute('width', w);
+  svg.setAttribute('height', h);
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  // Regenerate polylines proportionally
+  const hh = h; const step = Math.round(w / 5.5);
+  const pts = [0, step, step*2, step*3].map((x, i) => {
+    const x2 = x + step;
+    return `${x+3},${5} ${x2},${Math.round(hh/2)} ${x+3},${hh-5}`;
+  });
+  const opas = [0.28, 0.52, 0.76, 1];
+  const widths = [3, 3.5, 4, 4.5];
+  svg.querySelectorAll('polyline').forEach((p, i) => {
+    p.setAttribute('points', pts[i] || pts[pts.length-1]);
+    p.setAttribute('stroke-width', widths[i] || 4.5);
+    p.setAttribute('opacity', opas[i] || 1);
+  });
+};
+window.adjBandArrSize = function(d) {
+  const sl = document.getElementById('sl-bas');
+  const nv = Math.max(+sl.min, Math.min(+sl.max, +sl.value + d));
+  sl.value = nv; document.getElementById('sv-bas').textContent = nv;
+  setBandArrWidth(nv);
+};
+window.setBandCircleColor = function(color) {
+  document.getElementById('bandCircleColor').value = color.startsWith('rgba') || color === 'transparent' ? '#ffffff' : color;
+  ['bandLeftCircle','bandRightCircle'].forEach(id => {
+    document.getElementById(id).style.background = color;
+  });
+};
+
+/* ══ BODY TEXT BOX ══ */
+let _bodyBoxR = 12, _bodyBoxOp = 60;
+function _applyBodyBox() {
+  const box = document.getElementById('bodyTextBox');
+  const color = document.getElementById('bodyBoxColor').value;
+  // Convert hex color + opacity to rgba
+  const r = parseInt(color.slice(1,3),16);
+  const g = parseInt(color.slice(3,5),16);
+  const b = parseInt(color.slice(5,7),16);
+  box.style.background = `rgba(${r},${g},${b},${_bodyBoxOp/100})`;
+  box.style.borderRadius = _bodyBoxR + 'px';
+  box.style.padding = '10px 14px';
+}
+window.setBodyBox = function(show) {
+  const box = document.getElementById('bodyTextBox');
+  if (show) { _applyBodyBox(); }
+  else { box.style.background = 'transparent'; box.style.padding = '0'; }
+};
+window.setBodyBoxColor = function(c) {
+  document.getElementById('bodyBoxColor').value = c;
+  _applyBodyBox();
+};
+window.setBodyBoxOp = function(v) { _bodyBoxOp = parseInt(v); _applyBodyBox(); };
+window.adjBodyBoxOp = function(d) {
+  const sl = document.getElementById('sl-bbo');
+  const nv = Math.max(0, Math.min(100, +sl.value + d));
+  sl.value = nv; document.getElementById('sv-bbo').textContent = nv + '%';
+  setBodyBoxOp(nv);
+};
+window.setBodyBoxRadius = function(v) { _bodyBoxR = parseInt(v); _applyBodyBox(); };
+window.adjBodyBoxRadius = function(d) {
+  const sl = document.getElementById('sl-bbr');
+  const nv = Math.max(+sl.min, Math.min(+sl.max, +sl.value + d));
+  sl.value = nv; document.getElementById('sv-bbr').textContent = nv;
+  setBodyBoxRadius(nv);
+};
+
+/* ══ FIREBASE CARD CONFIGS ══ */
+function _collectCardState() {
+  const bandArea = document.getElementById('transferBandArea');
+  const bandVisible = bandArea && bandArea.style.display !== 'none';
+  const bodyBox = document.getElementById('bodyTextBox');
+  const bodyBoxBg = bodyBox ? bodyBox.style.background : '';
+  const bodyBoxHasBox = bodyBoxBg && bodyBoxBg !== 'transparent' && bodyBoxBg !== '';
+  const bandArrowsSvg = document.getElementById('bandArrowsSvg');
+  const firstPolyline = bandArrowsSvg ? bandArrowsSvg.querySelector('polyline') : null;
+  const arrColor = firstPolyline ? firstPolyline.getAttribute('stroke') : '#22c55e';
+  return {
+    time:      document.getElementById('cardTime')     ?.textContent ?? '',
+    title:     document.getElementById('cardTitle')    ?.textContent ?? '',
+    body:      document.getElementById('cardBodyText') ?.innerHTML   ?? '',
+    tag:       document.getElementById('cardTag')      ?.textContent ?? '',
+    date:      document.getElementById('cardDate')     ?.textContent ?? '',
+    bandShow:      bandVisible,
+    bandLeftUrl:   document.getElementById('bandLeftImg')  ?.src ?? '',
+    bandRightUrl:  document.getElementById('bandRightImg') ?.src ?? '',
+    bandLeftLabel: document.getElementById('bandLeftLabel') ?.textContent ?? 'DA',
+    bandRightLabel:document.getElementById('bandRightLabel')?.textContent ?? 'A',
+    bandArrColor:  arrColor,
+    bandPillColor: document.getElementById('bandArrowsCenter')?.style.background ?? '',
+    bandLogoSize:  parseInt(document.getElementById('sl-bls')?.value ?? 72),
+    bodyBoxShow:   bodyBoxHasBox,
+    bodyBoxColor:  document.getElementById('bodyBoxColor')?.value ?? '#000000',
+    bodyBoxOp:     _bodyBoxOp,
+    bodyBoxR:      _bodyBoxR,
+    ts:        new Date().toISOString(),
+  };
+}
+
+function _applyCardState(s) {
+  if (!s) return;
+  if (s.time  !== undefined) document.getElementById('cardTime').textContent = s.time;
+  if (s.title !== undefined) document.getElementById('cardTitle').textContent = s.title;
+  if (s.body  !== undefined) document.getElementById('cardBodyText').innerHTML = s.body;
+  if (s.tag   !== undefined) document.getElementById('cardTag').textContent  = s.tag;
+  if (s.date  !== undefined) document.getElementById('cardDate').textContent = s.date;
+
+  // Body box
+  if (s.bodyBoxShow) {
+    _bodyBoxOp = s.bodyBoxOp ?? 60;
+    _bodyBoxR  = s.bodyBoxR  ?? 12;
+    if (s.bodyBoxColor) document.getElementById('bodyBoxColor').value = s.bodyBoxColor;
+    const sl = document.getElementById('sl-bbo');
+    if (sl) { sl.value = _bodyBoxOp; document.getElementById('sv-bbo').textContent = _bodyBoxOp + '%'; }
+    const slr = document.getElementById('sl-bbr');
+    if (slr) { slr.value = _bodyBoxR; document.getElementById('sv-bbr').textContent = _bodyBoxR; }
+    setBodyBox(true);
+  } else {
+    setBodyBox(false);
+  }
+
+  // Transfer band
+  if (s.bandShow) {
+    showBandArea();
+    ['Left','Right'].forEach(side => {
+      const url   = side === 'Left' ? s.bandLeftUrl  : s.bandRightUrl;
+      const label = side === 'Left' ? s.bandLeftLabel : s.bandRightLabel;
+      if (url) {
+        const img = document.getElementById(`band${side}Img`);
+        const ph  = document.getElementById(`band${side}Placeholder`);
+        img.src = url; img.style.display = 'block';
+        if (ph) ph.style.display = 'none';
+      }
+      const lbl = document.getElementById(`band${side}Label`);
+      if (lbl && label) lbl.textContent = label;
+    });
+    if (s.bandArrColor) setBandArrColor(s.bandArrColor);
+    if (s.bandPillColor) setBandPillColor(s.bandPillColor);
+    if (s.bandLogoSize) {
+      setBandLogoSize(s.bandLogoSize);
+      const sl = document.getElementById('sl-bls');
+      if (sl) { sl.value = s.bandLogoSize; document.getElementById('sv-bls').textContent = s.bandLogoSize; }
+    }
+  } else {
+    hideBandArea();
+  }
+}
+
+window.openCardConfigs = async function() {
+  document.getElementById('cfgModal').style.display = 'flex';
+  await cfgRefresh();
+};
+window.closeCfg = () => document.getElementById('cfgModal').style.display = 'none';
+window.cfgBgClose = e => { if (e.target === document.getElementById('cfgModal')) closeCfg(); };
+
+window.saveCardConfig = async function() {
+  const name = document.getElementById('cfgName').value.trim();
+  if (!name) { alert('Inserisci un nome per la configurazione.'); return; }
+  const btn = document.querySelector('#cfgBox button[onclick="saveCardConfig()"]');
+  if (btn) { btn.textContent = '⏳…'; btn.disabled = true; }
+  try {
+    const state = _collectCardState();
+    state.name = name;
+    // Sanitize: remove data URLs (too large for Firestore)
+    if (state.bandLeftUrl  && state.bandLeftUrl.startsWith('data:'))  state.bandLeftUrl  = '';
+    if (state.bandRightUrl && state.bandRightUrl.startsWith('data:')) state.bandRightUrl = '';
+    await setDoc(doc(db, 'cardConfigs', name.replace(/[^a-zA-Z0-9_\-]/g, '_')), state);
+    document.getElementById('cfgName').value = '';
+    if (btn) { btn.textContent = '✅ Salvato!'; setTimeout(() => { btn.textContent = '💾 Salva su Firebase'; btn.disabled = false; }, 1500); }
+    await cfgRefresh();
+  } catch(e) {
+    alert('Errore salvataggio: ' + e.message);
+    if (btn) { btn.textContent = '💾 Salva su Firebase'; btn.disabled = false; }
+  }
+};
+
+async function cfgRefresh() {
+  const list = document.getElementById('cfgList');
+  const status = document.getElementById('cfgStatus');
+  list.innerHTML = '<div style="text-align:center;color:#94a3b8;padding:12px;font-size:12px">Caricamento…</div>';
+  try {
+    const snap = await getDocs(collection(db, 'cardConfigs'));
+    list.innerHTML = '';
+    if (snap.empty) {
+      list.innerHTML = '<div style="text-align:center;color:#94a3b8;font-size:11px;padding:16px">Nessuna configurazione salvata.</div>';
+      status.textContent = '';
+      return;
+    }
+    const configs = [];
+    snap.forEach(d => configs.push({ id: d.id, ...d.data() }));
+    configs.sort((a, b) => (b.ts ?? '').localeCompare(a.ts ?? ''));
+    configs.forEach(cfg => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:9px 12px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0';
+      const dateStr = cfg.ts ? new Date(cfg.ts).toLocaleString('it-IT', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }) : '';
+      row.innerHTML = `
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:800;color:#1e293b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${cfg.name || cfg.id}</div>
+          <div style="font-size:9px;color:#94a3b8">${dateStr} · ${cfg.title ? cfg.title.slice(0,30) : ''}</div>
+        </div>
+        <button onclick="loadCardConfig('${cfg.id}')" style="background:#dcfce7;color:#16a34a;border:none;border-radius:7px;padding:5px 10px;font-size:10px;font-weight:800;cursor:pointer">📂 Carica</button>
+        <button onclick="deleteCardConfig('${cfg.id}')" style="background:#fee2e2;color:#dc2626;border:none;border-radius:7px;padding:5px 8px;font-size:10px;font-weight:800;cursor:pointer">✕</button>`;
+      list.appendChild(row);
+    });
+    status.textContent = configs.length + ' configurazioni salvate';
+  } catch(e) {
+    list.innerHTML = `<div style="color:red;text-align:center;font-size:11px">Errore: ${e.message}</div>`;
+  }
+}
+
+window.loadCardConfig = async function(id) {
+  try {
+    const snap = await getDoc(doc(db, 'cardConfigs', id));
+    if (!snap.exists()) { alert('Configurazione non trovata.'); return; }
+    _applyCardState(snap.data());
+    closeCfg();
+  } catch(e) { alert('Errore caricamento: ' + e.message); }
+};
+
+window.deleteCardConfig = async function(id) {
+  if (!confirm('Eliminare questa configurazione?')) return;
+  try { await deleteDoc(doc(db, 'cardConfigs', id)); await cfgRefresh(); }
+  catch(e) { alert(e.message); }
 };
 </script>
 </body>
